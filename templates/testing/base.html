@@ -1,0 +1,112 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}IT COLLEGE — Вступительное тестирование{% endblock %}</title>
+  <link rel="icon" href="{% static 'img/favicon-globe.png' %}">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<!-- ===== НАВИГАЦИЯ ===== -->
+<nav class="navbar" id="navbar">
+  <div class="nav-inner">
+    <a href="{% url 'register' %}" class="nav-logo">
+      <div class="nav-logo-icon"><img src="{% static 'img/favicon-globe.png' %}" alt="IT COLLEGE"></div>
+      <span>IT COLLEGE</span>
+    </a>
+    <div class="nav-center-label">
+      Вступительное тестирование
+    </div>
+    <div class="nav-btns">
+      {% if request.user.is_authenticated and request.user.is_staff %}
+        <span class="nav-staff-name">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          {{ request.user.get_full_name|default:request.user.username }}
+        </span>
+        <a href="{% url 'staff_dashboard' %}" class="btn btn-primary btn-sm">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Портал
+        </a>
+        <a href="{% url 'staff_logout' %}" class="btn btn-outline btn-sm">Выйти</a>
+      {% else %}
+        <a href="{% url 'staff_login' %}" class="btn btn-primary btn-sm">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+          Вход для сотрудников
+        </a>
+      {% endif %}
+    </div>
+  </div>
+</nav>
+
+{% block content %}{% endblock %}
+
+<!-- ===== ФУТЕР ===== -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="footer-logo">
+        <div class="footer-logo-icon"><img src="{% static 'img/favicon-globe.png' %}" alt="IT COLLEGE"></div>
+        <span>IT COLLEGE</span>
+      </div>
+      <p>Профессиональное IT-образование в Кыргызстане.<br>Диплом государственного образца. Бюджетные места.</p>
+      <p style="margin-top:12px;font-size:13px;opacity:.6">© 2025 IT COLLEGE — Система вступительного тестирования</p>
+    </div>
+    <div>
+      <h4>Навигация</h4>
+      <ul>
+        <li><a href="{% url 'register' %}">Начать тестирование</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Помощь</h4>
+      <ul>
+        <li><a href="#">Инструкция</a></li>
+        <li><a href="#">Контакты колледжа</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Разработка</h4>
+      <ul>
+        <li><a href="#">IT-RUN Studio</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+<!-- Кнопка "Наверх" -->
+<button id="btt" aria-label="Вверх">
+  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="12" y1="19" x2="12" y2="5"/>
+    <polyline points="5 12 12 5 19 12"/>
+  </svg>
+</button>
+
+<script>
+  // Прогресс-бар прокрутки
+  window.addEventListener('scroll', () => {
+    const el = document.getElementById('progress-bar');
+    const scrolled = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
+    if (el) el.style.width = scrolled + '%';
+    // Тень навбара при скролле
+    const nav = document.getElementById('navbar');
+    if (nav) nav.classList.toggle('scrolled', window.scrollY > 10);
+  });
+  // Кнопка "Наверх"
+  const btt = document.getElementById('btt');
+  window.addEventListener('scroll', () => {
+    btt && btt.classList.toggle('visible', window.scrollY > 400);
+  });
+  btt && btt.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+</script>
+
+{% block extra_js %}{% endblock %}
+</body>
+</html>

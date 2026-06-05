@@ -1,0 +1,346 @@
+{% extends 'testing/base.html' %}
+{% load static %}
+
+{% block title %}Портал сотрудников — IT COLLEGE{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <div class="page-header-dots"></div>
+  <div class="container" style="position:relative">
+    <div class="tag">Портал сотрудников</div>
+    <h1>Результаты тестирования</h1>
+    <p>История всех абитуриентов · IT COLLEGE</p>
+  </div>
+</div>
+
+<section class="section" style="padding-top:40px">
+  <div class="container">
+
+    <!-- ─── УПРАВЛЕНИЕ ЭКЗАМЕНОМ ─── -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px;">
+
+      <!-- Кнопка вкл/выкл -->
+      <div style="background:#fff;border:2px solid {% if site.exam_is_active %}#86efac{% else %}#fca5a5{% endif %};border-radius:16px;padding:20px 24px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+          <div>
+            <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--gray);margin-bottom:6px;">Статус тестирования</div>
+            {% if site.exam_is_active %}
+            <div style="font-size:20px;font-weight:800;color:#16a34a;">● ОТКРЫТО</div>
+            <div style="font-size:12px;color:#64748b;margin-top:3px;">Студенты могут регистрироваться и сдавать тест</div>
+            {% else %}
+            <div style="font-size:20px;font-weight:800;color:#dc2626;">● ЗАКРЫТО</div>
+            <div style="font-size:12px;color:#64748b;margin-top:3px;">Сайт недоступен для студентов</div>
+            {% endif %}
+          </div>
+          <form method="POST" action="{% url 'exam_settings' %}">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="toggle">
+            {% if site.exam_is_active %}
+            <button type="submit" class="btn btn-outline" style="border-color:#dc2626;color:#dc2626;white-space:nowrap;display:inline-flex;align-items:center;gap:7px;"
+              onclick="return confirm('Закрыть тестирование? Студенты не смогут зарегистрироваться.')">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+              Закрыть
+            </button>
+            {% else %}
+            <button type="submit" class="btn btn-primary" style="background:#16a34a;border-color:#16a34a;white-space:nowrap;display:inline-flex;align-items:center;gap:7px;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/>
+              </svg>
+              Открыть
+            </button>
+            {% endif %}
+          </form>
+        </div>
+      </div>
+
+      <!-- Код доступа -->
+      <div style="background:#fff;border:1px solid var(--border);border-radius:16px;padding:20px 24px;">
+        <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--gray);margin-bottom:10px;">Код доступа для студентов</div>
+        <form method="POST" action="{% url 'exam_settings' %}">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="set_code">
+          <div style="display:flex;gap:8px;align-items:center;">
+            <input type="text" name="access_code"
+              value="{{ site.access_code }}"
+              placeholder="Например: EXAM2025"
+              style="flex:1;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:15px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-family:inherit;min-width:0;"
+              maxlength="30">
+            <button type="submit" class="btn btn-primary btn-sm" style="white-space:nowrap;flex-shrink:0;">Сохранить</button>
+          </div>
+          <div style="font-size:11px;color:#94a3b8;margin-top:6px;">
+            {% if site.access_code %}Текущий код: <strong style="color:#475569;">{{ site.access_code }}</strong>{% else %}Код не установлен — регистрация без кода{% endif %}
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Django messages -->
+    {% if messages %}
+    {% for msg in messages %}
+    <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:12px 16px;margin-bottom:16px;color:#166534;font-weight:600;font-size:14px;">
+      ✓ {{ msg }}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <!-- ─── Сводная статистика ─── -->
+    <div class="staff-stats-row">
+      <div class="staff-stat-card">
+        <div class="staff-stat-icon" style="background:rgba(29,78,216,.1);color:var(--primary)">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div>
+          <div class="staff-stat-num">{{ total_all }}</div>
+          <div class="staff-stat-label">Всего зарегистрировано</div>
+        </div>
+      </div>
+      <div class="staff-stat-card">
+        <div class="staff-stat-icon" style="background:rgba(22,163,74,.1);color:#16a34a">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <div>
+          <div class="staff-stat-num" style="color:#16a34a">{{ completed_all }}</div>
+          <div class="staff-stat-label">Завершили тест</div>
+        </div>
+      </div>
+      <div class="staff-stat-card">
+        <div class="staff-stat-icon" style="background:rgba(245,158,11,.1);color:#d97706">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        </div>
+        <div>
+          <div class="staff-stat-num" style="color:#d97706">{{ avg_score }}</div>
+          <div class="staff-stat-label">Средний балл (из 60)</div>
+        </div>
+      </div>
+      <div class="staff-stat-card" style="margin-left:auto">
+        <a href="{% url 'export_excel' %}" class="btn btn-primary" style="white-space:nowrap">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          Скачать Excel
+        </a>
+      </div>
+    </div>
+
+    <!-- ─── Фильтры ─── -->
+    <form method="GET" class="staff-filter-bar">
+      <div class="input-with-icon" style="flex:1;min-width:200px">
+        <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" name="search" class="form-input" placeholder="Поиск по ФИО, ПИН, школе..." value="{{ search }}">
+      </div>
+      <select name="grade" class="form-select" style="width:140px">
+        <option value="">Все классы</option>
+        {% for val, label in grade_choices %}
+        <option value="{{ val }}" {% if grade_f == val %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <select name="variant" class="form-select" style="width:160px">
+        <option value="">Все варианты</option>
+        {% for v in variants %}
+        <option value="{{ v.id }}" {% if variant_f == v.id|stringformat:'s' %}selected{% endif %}>{{ v.name }}</option>
+        {% endfor %}
+      </select>
+      <select name="completed" class="form-select" style="width:160px">
+        <option value="">Все статусы</option>
+        <option value="1" {% if completed_f == '1' %}selected{% endif %}>Завершили</option>
+        <option value="0" {% if completed_f == '0' %}selected{% endif %}>Не завершили</option>
+      </select>
+      <button type="submit" class="btn btn-primary">Найти</button>
+      {% if search or grade_f or variant_f or completed_f %}
+      <a href="{% url 'staff_dashboard' %}" class="btn btn-outline">Сбросить</a>
+      {% endif %}
+    </form>
+
+    <!-- ─── Таблица абитуриентов ─── -->
+    <div class="staff-table-wrap">
+      {% if abiturients %}
+      <table class="staff-table">
+        <thead>
+          <tr>
+            <th>№</th>
+            <th>ФИО</th>
+            <th>ПИН</th>
+            <th>Школа</th>
+            <th>Класс</th>
+            <th>Вар.</th>
+            <th>Дата/время</th>
+            <th class="score-col">Англ.</th>
+            <th class="score-col">Мат.</th>
+            <th class="score-col">Рус.</th>
+            <th class="score-col total-col">Итого</th>
+            <th>Статус</th>
+            <th>Действия</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for ab in abiturients %}
+          <tr>
+            <td class="row-num">{{ forloop.counter }}</td>
+            <td class="name-col">
+              <strong>{{ ab.last_name }} {{ ab.first_name }}</strong><br>
+              <span class="sub-text">{{ ab.middle_name }}</span>
+            </td>
+            <td><code class="pin-code">{{ ab.doc_number }}</code></td>
+            <td>
+              <span title="{{ ab.school }}">{{ ab.school|truncatechars:9 }}</span>
+            </td>
+            <td><span class="grade-badge">{{ ab.get_grade_display }}</span></td>
+            <td style="white-space:nowrap;text-align:center;" title="{{ ab.test_variant.name|default:'' }}">
+              {% if ab.test_variant %}
+                {% with name=ab.test_variant.name %}
+                  {% if '1' in name %}В-1{% elif '2' in name %}В-2{% elif 'A' in name %}В-A{% elif 'B' in name %}В-B{% else %}{{ name|truncatechars:4 }}{% endif %}
+                {% endwith %}
+              {% else %}—{% endif %}
+            </td>
+            <td class="date-col">
+              {{ ab.started_at|date:"d.m.Y" }}<br>
+              <span class="sub-text">{{ ab.started_at|date:"H:i" }}</span>
+            </td>
+            <!-- Баллы -->
+            {% if ab.is_completed and ab.result %}
+            <td class="score-col">{{ ab.result.english_score }}</td>
+            <td class="score-col">{{ ab.result.math_score }}</td>
+            <td class="score-col">{{ ab.result.russian_score }}</td>
+            <td class="score-col total-col">
+              <span class="total-badge
+                {% if ab.result.total_score >= 42 %}total-badge--green
+                {% elif ab.result.total_score >= 30 %}total-badge--yellow
+                {% else %}total-badge--red{% endif %}">
+                {{ ab.result.total_score }}/60
+              </span>
+            </td>
+            <td><span class="status-badge status-badge--done">Завершён</span></td>
+            {% else %}
+            <td class="score-col">—</td>
+            <td class="score-col">—</td>
+            <td class="score-col">—</td>
+            <td class="score-col total-col"><span class="total-badge total-badge--gray">—</span></td>
+            <td>
+              {% if ab.is_completed %}
+              <span class="status-badge status-badge--done">Завершён</span>
+              {% else %}
+              <span class="status-badge status-badge--pending">В процессе</span>
+              {% endif %}
+            </td>
+            {% endif %}
+            <td class="actions-col">
+              <div class="actions-wrap">
+                <a href="{% url 'staff_student_detail' ab.pk %}" class="btn btn-sm btn-outline" title="Детали">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  Детали
+                </a>
+                {% if ab.is_completed %}
+                <a href="{% url 'staff_print_report' ab.pk %}" target="_blank" class="btn btn-sm btn-primary" title="Печать">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                  PDF
+                </a>
+                {% endif %}
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="staff-empty">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="color:var(--gray-2)"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <h3>Ничего не найдено</h3>
+        <p>Попробуйте изменить параметры поиска или фильтра</p>
+        <a href="{% url 'staff_dashboard' %}" class="btn btn-outline" style="margin-top:16px">Сбросить фильтры</a>
+      </div>
+      {% endif %}
+    </div>
+
+    <p style="font-size:13px;color:var(--gray);margin-top:12px">
+      Показано: <strong>{{ abiturients|length }}</strong>
+      {% if search or grade_f or variant_f %} (из {{ total_all }} всего){% endif %}
+    </p>
+
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.staff-stats-row {
+  display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 24px;
+}
+.staff-stat-card {
+  display: flex; align-items: center; gap: 14px;
+  background: #fff; border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px 20px;
+  min-width: 180px;
+}
+.staff-stat-icon {
+  width: 44px; height: 44px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.staff-stat-num { font-size: 26px; font-weight: 900; color: var(--dark); line-height: 1; }
+.staff-stat-label { font-size: 12px; color: var(--gray); margin-top: 2px; }
+
+.staff-filter-bar {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  background: #fff; border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px; margin-bottom: 20px;
+}
+
+.staff-table-wrap {
+  background: #fff; border: 1px solid var(--border);
+  border-radius: var(--radius); overflow-x: auto;
+  box-shadow: var(--shadow);
+}
+.staff-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.staff-table thead tr { background: var(--dark-2); color: #fff; }
+.staff-table th {
+  padding: 12px 14px; text-align: left; font-size: 11px;
+  font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+  white-space: nowrap;
+}
+.staff-table td { padding: 12px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.staff-table tbody tr:last-child td { border-bottom: none; }
+.staff-table tbody tr:hover { background: #fafbff; }
+.staff-table tbody tr:hover .name-col strong { color: var(--primary); }
+
+.row-num { color: var(--gray-2); font-weight: 600; width: 36px; }
+.name-col strong { font-size: 13px; font-weight: 700; color: var(--dark); }
+.sub-text { font-size: 12px; color: var(--gray); }
+.date-col { white-space: nowrap; }
+.pin-code {
+  font-family: 'Courier New', monospace; font-size: 12px;
+  background: var(--light); color: var(--primary); padding: 2px 7px;
+  border-radius: 5px; border: 1px solid var(--border);
+}
+.grade-badge {
+  display: inline-block; background: var(--light); color: var(--primary);
+  font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 6px;
+  white-space: nowrap;
+}
+.score-col { text-align: center; font-weight: 600; color: var(--dark-3); }
+.total-col { font-weight: 800; }
+.total-badge {
+  display: inline-block; padding: 4px 10px; border-radius: 100px;
+  font-size: 12px; font-weight: 800;
+}
+.total-badge--green { background: #dcfce7; color: #166534; }
+.total-badge--yellow{ background: #fef9c3; color: #854d0e; }
+.total-badge--red   { background: #fee2e2; color: #991b1b; }
+.total-badge--gray  { background: var(--light); color: var(--gray); }
+.status-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 11px; font-weight: 700; padding: 3px 8px;
+  border-radius: 100px; white-space: nowrap;
+}
+.status-badge--done    { background: #dcfce7; color: #166534; }
+.status-badge--pending { background: #fef9c3; color: #854d0e; }
+.actions-col { white-space: nowrap; vertical-align: middle; }
+.actions-col .actions-wrap { display: inline-flex; gap: 6px; align-items: center; }
+
+.staff-empty {
+  padding: 64px 24px; text-align: center; color: var(--gray);
+}
+.staff-empty h3 { font-size: 18px; font-weight: 700; color: var(--dark); margin: 16px 0 8px; }
+.staff-empty p  { font-size: 14px; }
+</style>
+{% endblock %}

@@ -1,0 +1,608 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Тестирование — {{ abiturient.last_name }} {{ abiturient.first_name }}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <!-- KaTeX: рендеринг математических формул -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"
+    onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false})"></script>
+</head>
+<body class="test-body">
+
+<!-- ===== СТАРТОВЫЙ ОВЕРЛЕЙ ===== -->
+<div id="start-overlay" style="position:fixed;inset:0;z-index:9999;background:rgba(15,23,42,0.97);display:flex;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#fff;border-radius:20px;padding:44px 40px;max-width:540px;width:100%;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,0.5);">
+
+    <!-- Лого -->
+    <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:28px;">
+      <img src="{% static 'img/favicon-globe.png' %}" alt="IT COLLEGE" style="width:48px;height:48px;object-fit:contain;border-radius:8px;">
+      <div style="text-align:left;">
+        <div style="font-weight:800;font-size:18px;color:#0f172a;font-family:Manrope,sans-serif;">IT COLLEGE</div>
+        <div style="font-size:13px;color:#64748b;">Вступительное тестирование</div>
+      </div>
+    </div>
+
+    <!-- Приветствие -->
+    <h2 style="font-size:22px;font-weight:700;color:#0f172a;margin:0 0 6px;font-family:Manrope,sans-serif;">Готовы начать тестирование?</h2>
+    <p style="color:#64748b;font-size:14px;margin:0 0 24px;">{{ abiturient.last_name }} {{ abiturient.first_name }} {{ abiturient.middle_name }}</p>
+
+    <!-- Инфо о тесте -->
+    <div style="background:#f8fafc;border-radius:14px;padding:18px 24px;margin-bottom:24px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+      <div style="text-align:center;">
+        <div style="font-size:24px;font-weight:800;color:#6366f1;font-family:Manrope,sans-serif;">1:20</div>
+        <div style="font-size:11px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">часов</div>
+      </div>
+      <div style="text-align:center;border-left:1px solid #e2e8f0;border-right:1px solid #e2e8f0;">
+        <div style="font-size:24px;font-weight:800;color:#6366f1;font-family:Manrope,sans-serif;">{{ total_questions }}</div>
+        <div style="font-size:11px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">вопросов</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-size:24px;font-weight:800;color:#6366f1;font-family:Manrope,sans-serif;">{{ subjects_data|length }}</div>
+        <div style="font-size:11px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">предмет{% if subjects_data|length == 1 %}{% else %}а{% endif %}</div>
+      </div>
+    </div>
+
+    <!-- Правила контроля -->
+    <div style="background:#fef2f2;border:1.5px solid #fca5a5;border-radius:14px;padding:18px 20px;margin-bottom:28px;text-align:left;">
+      <div style="font-weight:700;color:#dc2626;font-size:13px;margin-bottom:10px;display:flex;align-items:center;gap:6px;font-family:Manrope,sans-serif;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Система контроля активна — ознакомьтесь с правилами
+      </div>
+      <ul style="margin:0;padding:0;list-style:none;font-size:13px;color:#7f1d1d;line-height:1.9;">
+        <li style="display:flex;align-items:center;gap:8px;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Тест проходит в <strong>полноэкранном режиме</strong>
+        </li>
+        <li style="display:flex;align-items:center;gap:8px;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Переключение вкладок и потеря фокуса <strong>фиксируются</strong>
+        </li>
+        <li style="display:flex;align-items:center;gap:8px;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Копирование текста и горячие клавиши <strong>заблокированы</strong>
+        </li>
+        <li style="display:flex;align-items:center;gap:8px;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+          После <strong>2 нарушений</strong> тест завершается автоматически
+        </li>
+      </ul>
+    </div>
+
+    <!-- Кнопка запуска -->
+    <button id="start-test-btn" onclick="startTest()" class="btn btn-primary btn-lg" style="width:100%;font-size:16px;padding:15px 24px;font-family:Manrope,sans-serif;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      Начать тестирование
+    </button>
+    <p style="margin-top:12px;font-size:12px;color:#94a3b8;">Браузер перейдёт в полноэкранный режим</p>
+
+  </div>
+</div>
+
+<!-- ===== ОВЕРЛЕЙ НАРУШЕНИЯ ===== -->
+<div id="violation-overlay" style="display:none;position:fixed;inset:0;z-index:9998;background:rgba(15,23,42,0.94);align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#fff;border-radius:20px;padding:40px;max-width:460px;width:100%;text-align:center;box-shadow:0 25px 60px rgba(0,0,0,0.4);">
+    <div style="width:64px;height:64px;background:#fef2f2;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;color:#dc2626;">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    </div>
+    <h3 style="color:#dc2626;margin:0 0 10px;font-size:20px;font-family:Manrope,sans-serif;">Нарушение зафиксировано!</h3>
+    <p id="violation-msg" style="color:#475569;margin:0 0 24px;line-height:1.7;font-size:14px;"></p>
+    <button onclick="continueAfterViolation()" class="btn btn-primary" style="width:100%;">
+      Вернуться к тесту
+    </button>
+  </div>
+</div>
+
+<!-- ===== ОВЕРЛЕЙ ПРИНУДИТЕЛЬНОГО ЗАВЕРШЕНИЯ ===== -->
+<div id="force-submit-overlay" style="display:none;position:fixed;inset:0;z-index:10000;background:rgba(127,29,29,0.98);align-items:center;justify-content:center;padding:20px;">
+  <div style="text-align:center;color:#fff;max-width:480px;">
+    <div style="width:80px;height:80px;background:rgba(255,255,255,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+    </div>
+    <h2 style="font-size:26px;font-weight:800;margin:0 0 12px;font-family:Manrope,sans-serif;">Тест завершён принудительно</h2>
+    <p style="font-size:15px;opacity:0.85;margin:0 0 8px;line-height:1.6;">Зафиксировано 2 нарушения правил тестирования.<br>Ваши ответы записаны и сохраняются в систему.</p>
+    <p style="font-size:13px;opacity:0.6;">Подождите, идёт сохранение...</p>
+    <div style="margin-top:28px;width:44px;height:44px;border:4px solid rgba(255,255,255,0.25);border-top-color:#fff;border-radius:50%;animation:spin 1s linear infinite;margin-left:auto;margin-right:auto;"></div>
+  </div>
+</div>
+
+<!-- ===== ФИКСИРОВАННАЯ ШАПКА ТЕСТА ===== -->
+<header class="test-header" id="test-header">
+  <div class="test-header-inner">
+
+    <!-- Лого -->
+    <div class="test-logo">
+      <div class="nav-logo-icon"><img src="{% static 'img/favicon-globe.png' %}" alt="IT COLLEGE"></div>
+      <div class="test-logo-text">
+        <span class="test-logo-name">IT COLLEGE</span>
+        <span class="test-logo-sub">{{ variant.name }}</span>
+      </div>
+    </div>
+
+    <!-- Счётчик ответов -->
+    <div class="test-progress-wrap">
+      <div class="test-progress-label">
+        Отвечено: <strong id="answered-count">0</strong> / <strong id="total-count">{{ total_questions }}</strong>
+      </div>
+      <div class="test-progress-bar-wrap">
+        <div class="test-progress-bar-fill" id="progress-fill"></div>
+      </div>
+    </div>
+
+    <!-- Таймер -->
+    <div class="test-timer" id="timer-widget">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+      </svg>
+      <span id="timer-display">--:--:--</span>
+    </div>
+
+  </div>
+</header>
+
+<!-- Предупреждение о выходе -->
+<div class="test-warning-bar" id="warning-bar" style="display:none">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+    <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+  </svg>
+  Осталось менее 10 минут! Проверьте свои ответы и завершите тест.
+</div>
+
+<!-- ===== ОСНОВНОЙ КОНТЕНТ ===== -->
+<main class="test-main">
+  <form method="POST" action="{% url 'submit_test' %}" id="test-form">
+    {% csrf_token %}
+
+    {% for block in subjects_data %}
+    {% with subject=block.subject questions=block.questions %}
+
+    <!-- ─── Блок предмета ─── -->
+    <div class="subject-block subject-block--{{ block.css_class }}"
+         id="subject-{{ subject.id }}">
+
+      <div class="subject-header">
+        <div class="subject-header-left">
+          <div class="subject-icon">
+            {% if 'англ' in subject.name|lower or 'eng' in subject.name|lower %}
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            {% elif 'мат' in subject.name|lower or 'math' in subject.name|lower %}
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg>
+            {% else %}
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            {% endif %}
+          </div>
+          <div>
+            <h2 class="subject-title">{{ subject.name }}</h2>
+            <span class="subject-meta">{{ questions|length }} вопросов · 1 балл за каждый верный ответ</span>
+          </div>
+        </div>
+        <div class="subject-score-badge" id="score-badge-{{ subject.id }}">
+          <span id="subj-answered-{{ subject.id }}">0</span>/{{ questions|length }}
+        </div>
+      </div>
+
+      <!-- Вопросы предмета -->
+      <div class="questions-list">
+        {% for q in questions %}
+        <div class="question-card" id="qcard-{{ q.id }}" data-subject="{{ subject.id }}">
+          <div class="question-top">
+            <span class="question-num">{{ forloop.counter }}</span>
+            <div class="question-text">{{ q.text|safe }}</div>
+          </div>
+          <ul class="options-list" role="radiogroup">
+            {% for opt in q.options %}
+            <li>
+              <label class="option-label" for="opt-{{ opt.id }}">
+                <input
+                  type="radio"
+                  id="opt-{{ opt.id }}"
+                  name="answer_{{ q.id }}"
+                  value="{{ opt.id }}"
+                  class="option-radio"
+                  data-question="{{ q.id }}"
+                  data-subject="{{ subject.id }}"
+                >
+                <span class="option-marker">{{ opt.letter }}</span>
+                <span class="option-text">{{ opt.text|safe }}</span>
+                <span class="option-check">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </span>
+              </label>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    {% endwith %}
+    {% endfor %}
+
+    <!-- ─── Кнопка завершения ─── -->
+    <div class="test-submit-section">
+      <div class="submit-info">
+        <div class="submit-info-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </div>
+        <div>
+          <strong>Перед завершением</strong>
+          <span>убедитесь, что ответили на все <span id="total-count-2">{{ total_questions }}</span> вопросов</span>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary btn-lg" id="final-submit-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        Завершить тестирование
+      </button>
+    </div>
+
+  </form>
+</main>
+
+<!-- ===== МОДАЛЬНОЕ ОКНО ПОДТВЕРЖДЕНИЯ ===== -->
+<div class="modal-overlay" id="confirm-modal" style="display:none">
+  <div class="modal-box">
+    <div class="modal-icon">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    </div>
+    <h3 id="modal-title">Завершить тестирование?</h3>
+    <p id="modal-text">Вы ответили на <strong id="modal-answered">0</strong> из <strong>{{ total_questions }}</strong> вопросов.</p>
+    <p class="modal-warning">После подтверждения изменить ответы будет невозможно.</p>
+    <div class="modal-btns">
+      <button class="btn btn-outline" id="modal-cancel">Вернуться к тесту</button>
+      <button class="btn btn-primary" id="modal-confirm">Да, завершить</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ОВЕРЛЕЙ "ВРЕМЯ ВЫШЛО" ===== -->
+<div class="modal-overlay" id="timeout-overlay" style="display:none">
+  <div class="modal-box modal-box--timeout">
+    <div class="modal-icon modal-icon--warning">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+      </svg>
+    </div>
+    <h3>Время истекло!</h3>
+    <p>Тест завершается автоматически. Ваши ответы сохраняются...</p>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════
+//  ГЛОБАЛЬНЫЕ ФЛАГИ (объявляем первыми — используются во всех блоках)
+// ════════════════════════════════════════
+let isSubmitting   = false;
+let testActive     = false;
+let violationCount = 0;
+let lastViolationTimestamp = 0;
+
+// ════════════════════════════════════════
+//  ТАЙМЕР
+// ════════════════════════════════════════
+let remainingSeconds = {{ remaining_seconds }};
+const timerDisplay = document.getElementById('timer-display');
+const timerWidget = document.getElementById('timer-widget');
+const warningBar = document.getElementById('warning-bar');
+
+function formatTime(sec) {
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor((sec % 3600) / 60);
+  const s = sec % 60;
+  return [h, m, s].map(v => String(v).padStart(2, '0')).join(':');
+}
+
+function updateTimer() {
+  if (remainingSeconds <= 0) {
+    timerDisplay.textContent = '00:00:00';
+    clearInterval(timerInterval);
+    // Снимаем защиту чтобы beforeunload не показал диалог
+    isSubmitting = true;
+    testActive = false;
+    localStorage.removeItem(STORAGE_KEY);
+    document.getElementById('timeout-overlay').style.display = 'flex';
+    setTimeout(() => {
+      document.getElementById('test-form').submit();
+    }, 2000);
+    return;
+  }
+
+  timerDisplay.textContent = formatTime(remainingSeconds);
+
+  // Цветовые состояния таймера
+  if (remainingSeconds <= 300) {           // менее 5 минут — красный пульс
+    timerWidget.className = 'test-timer test-timer--danger';
+  } else if (remainingSeconds <= 600) {    // менее 10 минут — оранжевый
+    timerWidget.className = 'test-timer test-timer--warning';
+    warningBar.style.display = 'flex';
+  } else {
+    timerWidget.className = 'test-timer';
+  }
+
+  remainingSeconds--;
+}
+
+const timerInterval = setInterval(updateTimer, 1000);
+updateTimer();
+
+
+// ════════════════════════════════════════
+//  СЧЁТЧИК ОТВЕТОВ + ПРОГРЕСС
+// ════════════════════════════════════════
+const totalQuestions = {{ total_questions }};
+const answeredCountEl = document.getElementById('answered-count');
+const progressFill = document.getElementById('progress-fill');
+
+// Данные по предметам: {subjectId: {answered, total}}
+const subjectData = {};
+{% for block in subjects_data %}
+subjectData[{{ block.subject.id }}] = { answered: 0, total: {{ block.questions|length }} };
+{% endfor %}
+
+function updateCounts() {
+  // Считаем ответы по каждому предмету
+  const subjectAnswered = {};
+  document.querySelectorAll('input[type="radio"]:checked').forEach(radio => {
+    const sid = radio.dataset.subject;
+    subjectAnswered[sid] = (subjectAnswered[sid] || 0) + 1;
+  });
+
+  let total = 0;
+  for (const sid in subjectAnswered) {
+    total += subjectAnswered[sid];
+    // Обновляем счётчик предмета
+    const badgeEl = document.getElementById(`subj-answered-${sid}`);
+    if (badgeEl) badgeEl.textContent = subjectAnswered[sid];
+  }
+
+  answeredCountEl.textContent = total;
+  // Обновляем прогресс-бар
+  const pct = (total / totalQuestions) * 100;
+  progressFill.style.width = pct + '%';
+}
+
+document.querySelectorAll('.option-radio').forEach(radio => {
+  radio.addEventListener('change', updateCounts);
+});
+updateCounts();
+
+
+// ════════════════════════════════════════
+//  ЛОКАЛЬНОЕ ХРАНИЛИЩЕ (восстановление при обновлении страницы)
+// ════════════════════════════════════════
+const STORAGE_KEY = 'itcollege_test_answers';
+
+function saveAnswers() {
+  const data = {};
+  document.querySelectorAll('input[type="radio"]:checked').forEach(radio => {
+    data[radio.name] = radio.value;
+  });
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+function restoreAnswers() {
+  try {
+    const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    for (const name in data) {
+      const radio = document.querySelector(`input[name="${name}"][value="${data[name]}"]`);
+      if (radio) radio.checked = true;
+    }
+    updateCounts();
+  } catch (e) { /* если данные повреждены — игнорируем */ }
+}
+
+// Сохраняем при каждом изменении ответа
+document.querySelectorAll('.option-radio').forEach(radio => {
+  radio.addEventListener('change', saveAnswers);
+});
+
+// Очищаем при отправке формы и снимаем защиту
+document.getElementById('test-form').addEventListener('submit', () => {
+  testActive = false;
+  localStorage.removeItem(STORAGE_KEY);
+});
+
+// Восстанавливаем при загрузке
+restoreAnswers();
+
+
+// ════════════════════════════════════════
+//  МОДАЛЬНОЕ ПОДТВЕРЖДЕНИЕ ЗАВЕРШЕНИЯ
+// ════════════════════════════════════════
+const modal = document.getElementById('confirm-modal');
+const finalBtn = document.getElementById('final-submit-btn');
+const modalAnswered = document.getElementById('modal-answered');
+
+finalBtn.addEventListener('click', function(e) {
+  e.preventDefault();
+  const answered = parseInt(answeredCountEl.textContent) || 0;
+  modalAnswered.textContent = answered;
+  modal.style.display = 'flex';
+});
+
+document.getElementById('modal-cancel').addEventListener('click', () => {
+  modal.style.display = 'none';
+});
+
+document.getElementById('modal-confirm').addEventListener('click', () => {
+  modal.style.display = 'none';
+  clearInterval(timerInterval);
+  // Снимаем защиту ДО submit, чтобы blur/visibilitychange не считались нарушением
+  isSubmitting = true;
+  testActive = false;
+  finalBtn.disabled = true;
+  finalBtn.innerHTML = `
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="spin-icon">
+      <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+    </svg>
+    Сохранение результатов...
+  `;
+  document.getElementById('test-form').submit();
+});
+
+// Закрытие по клику на оверлей
+modal.addEventListener('click', function(e) {
+  if (e.target === modal) modal.style.display = 'none';
+});
+
+
+// ════════════════════════════════════════
+//  ЗАЩИТА ОТ СЛУЧАЙНОГО УХОДА СО СТРАНИЦЫ
+// ════════════════════════════════════════
+window.addEventListener('beforeunload', function(e) {
+  if (isSubmitting) return; // не показывать диалог при нормальной отправке
+  const answered = parseInt(answeredCountEl.textContent) || 0;
+  if (answered > 0) {
+    e.preventDefault();
+    e.returnValue = 'Вы уверены, что хотите покинуть страницу? Прогресс может быть потерян.';
+  }
+});
+
+// Снимаем защиту и флаг при отправке формы
+document.getElementById('test-form').addEventListener('submit', function() {
+  isSubmitting = true;
+  testActive = false;
+  localStorage.removeItem(STORAGE_KEY);
+});
+
+
+// ════════════════════════════════════════
+//  АНТИШПАРГАЛОЧНАЯ ЗАЩИТА
+// ════════════════════════════════════════
+
+const MAX_VIOLATIONS = 2;
+const VIOLATION_DEBOUNCE_MS = 1500;
+
+const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+// ── 1. Правая кнопка мыши заблокирована ──
+document.addEventListener('contextmenu', e => e.preventDefault());
+
+// ── 2. Горячие клавиши заблокированы ──
+document.addEventListener('keydown', function(e) {
+  const ctrl = e.ctrlKey || e.metaKey;
+  if (
+    (ctrl && 'cvupsa'.includes(e.key.toLowerCase())) ||
+    e.key === 'F12' ||
+    (ctrl && e.shiftKey && 'ijc'.includes(e.key.toLowerCase()))
+  ) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+}, true);
+
+// ── 3. Выделение и копирование заблокированы ──
+document.addEventListener('selectstart', e => e.preventDefault());
+document.addEventListener('copy', e => e.preventDefault());
+document.addEventListener('cut', e => e.preventDefault());
+
+// ── 4. Логируем нарушение на сервер ──
+function logViolationToServer(type) {
+  fetch('/test/violation/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'X-CSRFToken': csrfToken,
+    },
+    body: 'type=' + encodeURIComponent(type),
+  }).catch(() => {});
+}
+
+// ── 5. Показать предупреждение о нарушении ──
+function showViolationWarning(count) {
+  const overlay = document.getElementById('violation-overlay');
+  const msg = document.getElementById('violation-msg');
+  msg.innerHTML =
+    'Зафиксировано <strong>нарушение ' + count + ' из ' + MAX_VIOLATIONS + '</strong>.<br>' +
+    'Это нарушение записано в систему. При следующем нарушении тест будет <strong>завершён автоматически</strong>.';
+  overlay.style.display = 'flex';
+}
+
+// ── 6. Принудительное завершение теста ──
+function showForceSubmit() {
+  isSubmitting = true;
+  testActive = false;
+  clearInterval(timerInterval);
+  document.getElementById('force-submit-overlay').style.display = 'flex';
+  localStorage.removeItem(STORAGE_KEY);
+  setTimeout(() => {
+    document.getElementById('test-form').submit();
+  }, 3000);
+}
+
+// ── 7. Кнопка "Вернуться к тесту" после предупреждения ──
+function continueAfterViolation() {
+  document.getElementById('violation-overlay').style.display = 'none';
+  // Пробуем вернуть полноэкранный режим
+  const el = document.documentElement;
+  if (!document.fullscreenElement) {
+    if (el.requestFullscreen) el.requestFullscreen().catch(() => {});
+    else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+  }
+}
+
+// ── 8. Регистрация нарушения (с дебаунсом против двойного срабатывания) ──
+function registerViolation(type) {
+  if (!testActive) return;
+  const now = Date.now();
+  if (now - lastViolationTimestamp < VIOLATION_DEBOUNCE_MS) return;
+  lastViolationTimestamp = now;
+
+  violationCount++;
+  logViolationToServer(type);
+
+  if (violationCount >= MAX_VIOLATIONS) {
+    showForceSubmit();
+  } else {
+    showViolationWarning(violationCount);
+  }
+}
+
+// ── 9. Смена вкладки (Page Visibility API) ──
+document.addEventListener('visibilitychange', function() {
+  if (document.hidden) registerViolation('tab_switch');
+});
+
+// ── 10. Потеря фокуса окна (Alt+Tab, открытие другого приложения) ──
+window.addEventListener('blur', function() {
+  registerViolation('window_blur');
+});
+
+// ── 11. Выход из полноэкранного режима ──
+function onFullscreenChange() {
+  if (!document.fullscreenElement && !document.webkitFullscreenElement && testActive) {
+    registerViolation('fullscreen_exit');
+    // Оверлей нарушения сам предложит вернуться в fullscreen через continueAfterViolation()
+  }
+}
+document.addEventListener('fullscreenchange', onFullscreenChange);
+document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+
+// ── 12. Запуск теста (вызывается из стартового оверлея) ──
+function startTest() {
+  const btn = document.getElementById('start-test-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" class="spin-icon"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Запуск...';
+
+  const el = document.documentElement;
+  const fsPromise = el.requestFullscreen
+    ? el.requestFullscreen()
+    : el.webkitRequestFullscreen
+      ? new Promise(r => { el.webkitRequestFullscreen(); r(); })
+      : Promise.resolve();
+
+  fsPromise.catch(() => {}).finally(() => {
+    document.getElementById('start-overlay').style.display = 'none';
+    testActive = true;
+  });
+}
+</script>
+
+</body>
+</html>

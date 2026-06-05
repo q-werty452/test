@@ -1,0 +1,269 @@
+{% extends 'testing/base.html' %}
+{% load static %}
+
+{% block title %}{{ abiturient.full_name }} — IT COLLEGE{% endblock %}
+
+{% block content %}
+
+<div class="page-header" style="padding:40px 24px">
+  <div class="page-header-dots"></div>
+  <div class="container" style="position:relative">
+    <a href="{% url 'staff_dashboard' %}" class="back-link">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+      Назад к списку
+    </a>
+    <h1 style="margin-top:10px">{{ abiturient.full_name }}</h1>
+    <p>{{ abiturient.doc_number }} · {{ abiturient.school }} · {{ abiturient.get_grade_display }}</p>
+  </div>
+</div>
+
+<section class="section" style="padding-top:32px">
+  <div class="container">
+
+    <!-- ─── Верхняя панель ─── -->
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:24px">
+      <div></div>
+      <div style="display:flex;gap:10px">
+        {% if abiturient.is_completed %}
+        <a href="{% url 'staff_print_report' abiturient.pk %}" target="_blank" class="btn btn-primary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+          Распечатать / Сохранить PDF
+        </a>
+        {% endif %}
+        <a href="{% url 'staff_dashboard' %}" class="btn btn-outline">← К списку</a>
+      </div>
+    </div>
+
+    <div class="detail-top-grid">
+
+      <!-- Личные данные -->
+      <div class="detail-card">
+        <h3 class="detail-card-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Личные данные
+        </h3>
+        <table class="info-table">
+          <tr><td>Фамилия</td><td><strong>{{ abiturient.last_name }}</strong></td></tr>
+          <tr><td>Имя</td><td><strong>{{ abiturient.first_name }}</strong></td></tr>
+          <tr><td>Отчество</td><td>{{ abiturient.middle_name }}</td></tr>
+          <tr><td>Дата рождения</td><td>{{ abiturient.birth_date|date:"d.m.Y" }}</td></tr>
+          <tr><td>Школа</td><td>{{ abiturient.school }}</td></tr>
+          <tr><td>Класс</td><td><span class="grade-badge">{{ abiturient.get_grade_display }}</span></td></tr>
+          {% if abiturient.pin %}<tr><td>ПИН</td><td><code class="pin-code">{{ abiturient.pin }}</code></td></tr>{% endif %}
+          {% if abiturient.birth_certificate %}<tr><td>Свид. о рождении</td><td><code class="pin-code">{{ abiturient.birth_certificate }}</code></td></tr>{% endif %}
+        </table>
+      </div>
+
+      <!-- Данные тестирования -->
+      <div class="detail-card">
+        <h3 class="detail-card-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Тестирование
+        </h3>
+        <table class="info-table">
+          <tr><td>Вариант</td><td><strong>{{ abiturient.test_variant.name|default:"—" }}</strong></td></tr>
+          <tr><td>Начало</td><td>{{ abiturient.started_at|date:"d.m.Y H:i" }}</td></tr>
+          <tr><td>Завершение</td><td>{{ abiturient.finished_at|date:"d.m.Y H:i"|default:"—" }}</td></tr>
+          <tr><td>Статус</td>
+            <td>
+              {% if abiturient.is_completed %}
+              <span class="status-badge status-badge--done">✓ Завершён</span>
+              {% else %}
+              <span class="status-badge status-badge--pending">В процессе</span>
+              {% endif %}
+            </td>
+          </tr>
+          <tr><td>Нарушения</td>
+            <td>
+              {% if abiturient.violations_count == 0 %}
+                <span class="status-badge" style="background:#dcfce7;color:#166534;display:inline-flex;align-items:center;gap:5px;">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  Нарушений нет
+                </span>
+              {% elif abiturient.violations_count == 1 %}
+                <span class="status-badge" style="background:#fef9c3;color:#854d0e;display:inline-flex;align-items:center;gap:5px;">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                  1 нарушение
+                </span>
+              {% else %}
+                <span class="status-badge" style="background:#fee2e2;color:#991b1b;display:inline-flex;align-items:center;gap:5px;">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                  {{ abiturient.violations_count }} нарушения
+                </span>
+              {% endif %}
+            </td>
+          </tr>
+        </table>
+
+        {% if abiturient.is_completed and abiturient.result %}
+        <!-- Карточки баллов -->
+        <div class="score-cards">
+          <div class="score-card score-card--english">
+            <div class="score-card-label">Английский</div>
+            <div class="score-card-num">{{ abiturient.result.english_score }}</div>
+            <div class="score-card-max">из 20</div>
+          </div>
+          <div class="score-card score-card--math">
+            <div class="score-card-label">Математика</div>
+            <div class="score-card-num">{{ abiturient.result.math_score }}</div>
+            <div class="score-card-max">из 20</div>
+          </div>
+          <div class="score-card score-card--russian">
+            <div class="score-card-label">Русский яз.</div>
+            <div class="score-card-num">{{ abiturient.result.russian_score }}</div>
+            <div class="score-card-max">из 20</div>
+          </div>
+          <div class="score-card score-card--total
+            {% if abiturient.result.total_score >= 42 %}score-card--green
+            {% elif abiturient.result.total_score >= 30 %}score-card--yellow
+            {% else %}score-card--red{% endif %}">
+            <div class="score-card-label">ИТОГО</div>
+            <div class="score-card-num">{{ abiturient.result.total_score }}</div>
+            <div class="score-card-max">из 60</div>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- ─── Детализация по предметам ─── -->
+    {% if subjects_data %}
+    <h2 style="font-size:18px;font-weight:800;color:var(--dark);margin:32px 0 16px">
+      Детализация ответов
+    </h2>
+
+    {% for group in subjects_data %}
+    <div class="answers-block" style="margin-bottom:24px">
+      <div class="answers-block-header">
+        <strong>{{ group.subject.name }}</strong>
+        <span class="answers-score-badge
+          {% if group.correct >= 14 %}answers-score-badge--green
+          {% elif group.correct >= 10 %}answers-score-badge--yellow
+          {% else %}answers-score-badge--red{% endif %}">
+          {{ group.correct }} / {{ group.total }} правильных
+        </span>
+      </div>
+      <table class="answers-table">
+        <thead>
+          <tr>
+            <th style="width:44px">№</th>
+            <th>Вопрос</th>
+            <th>Ответ абитуриента</th>
+            <th>Правильный ответ</th>
+            <th style="width:54px">Итог</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in group.answers %}
+          <tr class="{% if item.answer.is_correct %}row-correct{% elif not item.answer.selected_option %}row-skipped{% else %}row-wrong{% endif %}">
+            <td style="text-align:center;font-weight:700;color:var(--gray)">{{ forloop.counter }}</td>
+            <td>{{ item.answer.question.text|truncatechars:100 }}</td>
+            <td>
+              {% if item.answer.selected_option %}
+                {{ item.answer.selected_option.text }}
+              {% else %}
+                <em style="color:var(--gray-2)">Нет ответа</em>
+              {% endif %}
+            </td>
+            <td>{{ item.correct_opt.text|default:"—" }}</td>
+            <td style="text-align:center;font-size:18px">
+              {% if item.answer.is_correct %}
+                <span style="color:#16a34a;font-weight:900">✓</span>
+              {% elif not item.answer.selected_option %}
+                <span style="color:var(--gray-2)">—</span>
+              {% else %}
+                <span style="color:#dc2626;font-weight:900">✗</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endfor %}
+
+    {% else %}
+    <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:40px;text-align:center;color:var(--gray);margin-top:24px">
+      <p>Детализация ответов недоступна (тест не завершён).</p>
+    </div>
+    {% endif %}
+
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.back-link {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 13px; font-weight: 600; color: rgba(255,255,255,.7);
+  transition: color .2s;
+}
+.back-link:hover { color: #fff; }
+
+.detail-top-grid {
+  display: grid; grid-template-columns: 1fr 1.4fr; gap: 24px; margin-bottom: 24px;
+}
+.detail-card {
+  background: #fff; border: 1px solid var(--border); border-radius: var(--radius); padding: 24px;
+}
+.detail-card-title {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 14px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .06em; color: var(--gray); margin-bottom: 16px;
+  padding-bottom: 12px; border-bottom: 1px solid var(--border);
+}
+.info-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.info-table td { padding: 7px 0; border-bottom: 1px solid var(--border); }
+.info-table td:first-child { color: var(--gray); width: 40%; }
+.info-table tr:last-child td { border-bottom: none; }
+.pin-code { font-family:'Courier New',monospace;font-size:12px;background:var(--light);color:var(--primary);padding:2px 7px;border-radius:5px;border:1px solid var(--border); }
+.grade-badge { display:inline-block;background:var(--light);color:var(--primary);font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px; }
+.status-badge { display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:3px 8px;border-radius:100px; }
+.status-badge--done    { background:#dcfce7;color:#166534; }
+.status-badge--pending { background:#fef9c3;color:#854d0e; }
+
+.score-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 20px; }
+.score-card {
+  border-radius: 10px; padding: 14px 10px; text-align: center;
+  border: 2px solid transparent;
+}
+.score-card--english { background:#eff2ff; border-color:#dde5ff; }
+.score-card--math    { background:#f0fdf4; border-color:#bbf7d0; }
+.score-card--russian { background:#fff5f5; border-color:#fecaca; }
+.score-card--total   { }
+.score-card--green   { background:#dcfce7; border-color:#86efac; }
+.score-card--yellow  { background:#fef9c3; border-color:#fde047; }
+.score-card--red     { background:#fee2e2; border-color:#fca5a5; }
+.score-card-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing:.05em; color: var(--gray); margin-bottom: 6px; }
+.score-card-num   { font-size: 28px; font-weight: 900; color: var(--dark); line-height: 1; }
+.score-card-max   { font-size: 11px; color: var(--gray); }
+
+.answers-block { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.answers-block-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 20px; background: var(--dark-2); color: #fff; font-size: 14px;
+}
+.answers-score-badge { font-size: 13px; font-weight: 700; padding: 4px 12px; border-radius: 100px; }
+.answers-score-badge--green  { background: #dcfce7; color: #166534; }
+.answers-score-badge--yellow { background: #fef9c3; color: #854d0e; }
+.answers-score-badge--red    { background: #fee2e2; color: #991b1b; }
+
+.answers-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.answers-table th { padding: 10px 14px; text-align: left; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing:.05em; color: var(--gray); background: var(--light); border-bottom: 1px solid var(--border); }
+.answers-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.answers-table tr:last-child td { border-bottom: none; }
+.row-correct { background: #f0fdf4; }
+.row-wrong   { background: #fff5f5; }
+.row-skipped { opacity: .7; }
+
+@media (max-width: 900px) {
+  .detail-top-grid { grid-template-columns: 1fr; }
+  .score-cards { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 640px) {
+  .score-cards { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+{% endblock %}

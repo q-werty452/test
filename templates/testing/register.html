@@ -1,0 +1,289 @@
+{% extends 'testing/base.html' %}
+{% load static %}
+
+{% block title %}Регистрация — IT COLLEGE Тестирование{% endblock %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="page-header">
+  <div class="page-header-dots"></div>
+  <div class="container" style="position:relative">
+    <div class="tag">Вступительное тестирование 2025</div>
+    <h1>Регистрация абитуриента</h1>
+    <p>Заполните форму точно по документу, удостоверяющему личность</p>
+  </div>
+</div>
+
+<!-- Шаги -->
+<section class="section" style="padding-bottom:0">
+  <div class="container">
+    <div class="steps-row">
+      <div class="step-pill step-pill--active">
+        <span class="step-pill-num">1</span>
+        <span>Регистрация</span>
+      </div>
+      <div class="step-pill-line"></div>
+      <div class="step-pill">
+        <span class="step-pill-num">2</span>
+        <span>Тестирование</span>
+      </div>
+      <div class="step-pill-line"></div>
+      <div class="step-pill">
+        <span class="step-pill-num">3</span>
+        <span>Завершение</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Форма регистрации -->
+<section class="section">
+  <div class="container">
+    <div class="register-layout">
+
+      <!-- Карточка с формой -->
+      <div class="register-card">
+        <div class="register-card-header">
+          <div class="register-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+          </div>
+          <div>
+            <h2>Данные абитуриента</h2>
+            <p>Все поля обязательны для заполнения</p>
+          </div>
+        </div>
+
+        <!-- Ошибки формы (не к конкретному полю) -->
+        {% if form.non_field_errors %}
+        <div class="form-alert form-alert--error">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <div>{% for err in form.non_field_errors %}{{ err }}{% endfor %}</div>
+        </div>
+        {% endif %}
+
+        <form method="POST" novalidate id="register-form">
+          {% csrf_token %}
+
+          {% if code_required %}
+          <!-- Поле кода доступа -->
+          <div class="form-group {% if code_error %}has-error{% endif %}" style="margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--border);">
+            <label class="form-label" for="access_code_input">
+              Код доступа <span class="req">*</span>
+            </label>
+            <div class="input-with-icon">
+              <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+              <input type="text" id="access_code_input" name="access_code"
+                class="form-input" placeholder="Введите код от преподавателя"
+                autocomplete="off" style="text-transform:uppercase;letter-spacing:.1em;font-weight:700;">
+            </div>
+            {% if code_error %}
+            <span class="field-error">{{ code_error }}</span>
+            {% else %}
+            <span class="form-hint">Код сообщает преподаватель перед началом тестирования</span>
+            {% endif %}
+          </div>
+          {% endif %}
+
+          <div class="form-grid-2">
+            <!-- Фамилия -->
+            <div class="form-group {% if form.last_name.errors %}has-error{% endif %}">
+              <label class="form-label" for="{{ form.last_name.id_for_label }}">
+                {{ form.last_name.label }} <span class="req">*</span>
+              </label>
+              {{ form.last_name }}
+              {% if form.last_name.errors %}
+              <span class="field-error">{{ form.last_name.errors.0 }}</span>
+              {% endif %}
+            </div>
+
+            <!-- Имя -->
+            <div class="form-group {% if form.first_name.errors %}has-error{% endif %}">
+              <label class="form-label" for="{{ form.first_name.id_for_label }}">
+                {{ form.first_name.label }} <span class="req">*</span>
+              </label>
+              {{ form.first_name }}
+              {% if form.first_name.errors %}
+              <span class="field-error">{{ form.first_name.errors.0 }}</span>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Отчество -->
+          <div class="form-group {% if form.middle_name.errors %}has-error{% endif %}">
+            <label class="form-label" for="{{ form.middle_name.id_for_label }}">
+              {{ form.middle_name.label }} <span class="req">*</span>
+            </label>
+            {{ form.middle_name }}
+            {% if form.middle_name.errors %}
+            <span class="field-error">{{ form.middle_name.errors.0 }}</span>
+            {% endif %}
+          </div>
+
+          <div class="form-grid-2">
+            <!-- Дата рождения -->
+            <div class="form-group {% if form.birth_date.errors %}has-error{% endif %}">
+              <label class="form-label" for="{{ form.birth_date.id_for_label }}">
+                {{ form.birth_date.label }} <span class="req">*</span>
+              </label>
+              {{ form.birth_date }}
+              {% if form.birth_date.errors %}
+              <span class="field-error">{{ form.birth_date.errors.0 }}</span>
+              {% endif %}
+            </div>
+
+            <!-- Класс -->
+            <div class="form-group {% if form.grade.errors %}has-error{% endif %}">
+              <label class="form-label" for="{{ form.grade.id_for_label }}">
+                {{ form.grade.label }} <span class="req">*</span>
+              </label>
+              {{ form.grade }}
+              {% if form.grade.errors %}
+              <span class="field-error">{{ form.grade.errors.0 }}</span>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Школа -->
+          <div class="form-group {% if form.school.errors %}has-error{% endif %}">
+            <label class="form-label" for="{{ form.school.id_for_label }}">
+              {{ form.school.label }} <span class="req">*</span>
+            </label>
+            {{ form.school }}
+            {% if form.school.errors %}
+            <span class="field-error">{{ form.school.errors.0 }}</span>
+            {% endif %}
+          </div>
+
+          <!-- Документ удостоверяющий личность -->
+          <div style="background:#f8fafc;border-radius:12px;padding:16px 18px;border:1px solid var(--border);margin-bottom:16px;">
+            <p style="font-size:11px;font-weight:700;text-transform:uppercase;color:#64748b;letter-spacing:.06em;margin-bottom:14px;">
+              Документ удостоверяющий личность
+              <span style="font-weight:600;color:#dc2626;font-size:10px;margin-left:6px;">★ заполните хотя бы одно поле</span>
+            </p>
+
+            <!-- ПИН -->
+            <div class="form-group {% if form.pin.errors %}has-error{% endif %}" style="margin-bottom:10px;">
+              <label class="form-label" for="{{ form.pin.id_for_label }}">{{ form.pin.label }}</label>
+              <div class="input-with-icon">
+                <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                {{ form.pin }}
+              </div>
+              <span class="form-hint">Только кыргызский паспорт — 14 цифр ПИН</span>
+              {% if form.pin.errors %}<span class="field-error">{{ form.pin.errors.0 }}</span>{% endif %}
+            </div>
+
+            <div style="text-align:center;color:#94a3b8;font-size:12px;font-weight:600;margin:10px 0;">— или —</div>
+
+            <!-- Свидетельство о рождении -->
+            <div class="form-group {% if form.birth_certificate.errors %}has-error{% endif %}" style="margin-bottom:0;">
+              <label class="form-label" for="{{ form.birth_certificate.id_for_label }}">{{ form.birth_certificate.label }}</label>
+              <div class="input-with-icon">
+                <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                {{ form.birth_certificate }}
+              </div>
+              <span class="form-hint">Если нет паспорта или паспорт иностранный (египетский, российский и др.) — например: KPX 1234567</span>
+              {% if form.birth_certificate.errors %}<span class="field-error">{{ form.birth_certificate.errors.0 }}</span>{% endif %}
+            </div>
+          </div>
+
+          <!-- Согласие -->
+          <div class="form-agreement">
+            <label class="checkbox-label">
+              <input type="checkbox" id="agree-check" required>
+              <span class="checkbox-box"></span>
+              <span>Я подтверждаю, что указал(а) верные данные и готов(а) пройти тестирование</span>
+            </label>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-lg btn-full" id="submit-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            Начать тестирование
+          </button>
+        </form>
+      </div>
+
+      <!-- Боковая информация -->
+      <div class="register-sidebar">
+        <div class="info-card">
+          <div class="info-card-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <h4>Продолжительность</h4>
+          <p>Тест рассчитан на <strong>1 час 20 минут</strong>. После истечения времени тест завершается автоматически.</p>
+        </div>
+
+        <div class="info-card">
+          <div class="info-card-icon" style="background:rgba(245,158,11,.1);color:#d97706">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <h4>Структура теста</h4>
+          <ul class="info-list">
+            <li><span class="subj-dot subj-dot--english"></span> Английский язык — 20 вопросов</li>
+            <li><span class="subj-dot subj-dot--math"></span> Математика — 20 вопросов</li>
+            <li><span class="subj-dot subj-dot--russian"></span> Русский язык — 20 вопросов</li>
+          </ul>
+        </div>
+
+        <div class="info-card info-card--warning">
+          <div class="info-card-icon" style="background:rgba(220,38,38,.1);color:#dc2626">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <h4>Важно!</h4>
+          <p>Повторное прохождение теста с тем же документом невозможно. Убедитесь в правильности данных.</p>
+          
+          <h4 style="color:#dc2626;">Система контроля</h4>
+          <ul class="info-list" style="color:#7f1d1d;margin-top:8px;">
+            <li style="display:flex;align-items:flex-start;gap:6px;margin-bottom:6px;">
+              <svg width="14" height="14" style="flex-shrink:0;margin-top:2px;color:#dc2626" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Тест проходит в <strong>полноэкранном режиме</strong></span>
+            </li>
+            <li style="display:flex;align-items:flex-start;gap:6px;margin-bottom:6px;">
+              <svg width="14" height="14" style="flex-shrink:0;margin-top:2px;color:#dc2626" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Переключение вкладок и сворачивание браузера <strong>фиксируется системой</strong></span>
+            </li>
+            <li style="display:flex;align-items:flex-start;gap:6px;margin-bottom:6px;">
+              <svg width="14" height="14" style="flex-shrink:0;margin-top:2px;color:#dc2626" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Копирование текста и горячие клавиши <strong>заблокированы</strong></span>
+            </li>
+            <li style="display:flex;align-items:flex-start;gap:6px;">
+              <svg width="14" height="14" style="flex-shrink:0;margin-top:2px;color:#dc2626" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>При <strong>2 нарушениях</strong> тест завершается автоматически</span>
+            </li>
+          </ul>
+        </div>
+        </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Блокируем кнопку «Начать» пока не поставлена галочка согласия
+  const agreeCheck = document.getElementById('agree-check');
+  const submitBtn = document.getElementById('submit-btn');
+
+  function toggleSubmit() {
+    submitBtn.disabled = !agreeCheck.checked;
+    submitBtn.style.opacity = agreeCheck.checked ? '1' : '0.5';
+  }
+  toggleSubmit();
+  agreeCheck.addEventListener('change', toggleSubmit);
+
+  // Анимация кнопки при отправке
+  document.getElementById('register-form').addEventListener('submit', function() {
+    submitBtn.innerHTML = `
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" class="spin-icon">
+        <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+      </svg> 
+      Загрузка...
+    `;
+    submitBtn.disabled = true;
+  });
+</script>
+{% endblock %}

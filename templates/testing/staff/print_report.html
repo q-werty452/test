@@ -1,0 +1,314 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ведомость — {{ abiturient.full_name }}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    /* ── Общие стили ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Manrope', 'Segoe UI', Arial, sans-serif;
+      font-size: 13px; color: #111; background: #f5f5f5;
+      line-height: 1.5;
+    }
+
+    /* ── Кнопки (только на экране) ── */
+    .screen-only { padding: 16px 24px; background: #1d4ed8; display:flex; align-items:center; gap:12px; }
+    .btn-print {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: #fff; color: #1d4ed8; border: none; padding: 10px 24px;
+      border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer;
+      transition: opacity .2s;
+    }
+    .btn-print:hover { opacity: .88; }
+    .btn-back {
+      display: inline-flex; align-items: center; gap: 6px;
+      color: rgba(255,255,255,.85); font-size: 13px; font-weight: 600;
+      text-decoration: none;
+    }
+    .btn-back:hover { color: #fff; }
+    .screen-hint { color: rgba(255,255,255,.7); font-size: 12px; }
+
+    /* ── Страница A4 ── */
+    .page {
+      width: 210mm; min-height: 297mm;
+      margin: 20px auto; background: #fff;
+      box-shadow: 0 4px 32px rgba(0,0,0,.15);
+      padding: 18mm 15mm 15mm;
+    }
+
+    /* ── Шапка документа ── */
+    .doc-header {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      margin-bottom: 10mm; border-bottom: 2px solid #1d4ed8; padding-bottom: 6mm;
+    }
+    .doc-logo-block { display: flex; align-items: center; gap: 10px; }
+    .doc-logo-icon {
+      width: 52px; height: 52px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .doc-logo-icon img { width: 52px; height: 52px; object-fit: contain; }
+    .doc-logo-name { font-size: 18px; font-weight: 900; color: #060c1d; line-height: 1.1; }
+    .doc-logo-sub  { font-size: 11px; color: #64748b; }
+    .doc-title-block { text-align: right; }
+    .doc-title { font-size: 15px; font-weight: 800; color: #060c1d; }
+    .doc-subtitle { font-size: 11px; color: #64748b; margin-top: 2px; }
+    .doc-date { font-size: 11px; color: #64748b; margin-top: 8px; }
+
+    /* ── Блок данных абитуриента ── */
+    .section-title {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .08em; color: #64748b;
+      border-bottom: 1px solid #dde5ff; margin-bottom: 5mm; padding-bottom: 2mm;
+      margin-top: 6mm;
+    }
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+    .info-row { display: flex; flex-direction: column; gap: 1px; }
+    .info-label { font-size: 10px; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+    .info-value { font-size: 13px; font-weight: 700; color: #060c1d; }
+
+    /* ── Таблица баллов ── */
+    .scores-table { width: 100%; border-collapse: collapse; margin-top: 4mm; }
+    .scores-table th, .scores-table td { padding: 6px 10px; text-align: center; border: 1px solid #dde5ff; }
+    .scores-table thead { background: #1d4ed8; color: #fff; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+    .scores-table tbody td { font-size: 14px; font-weight: 700; }
+    .total-cell { background: #eff2ff; font-size: 16px !important; font-weight: 900 !important; color: #1d4ed8; }
+
+    /* ── Таблица ответов ── */
+    .answers-table { width: 100%; border-collapse: collapse; margin-top: 3mm; font-size: 9px; }
+    .answers-table th { padding: 3px 5px; text-align: left; background: #f8faff; border: 1px solid #dde5ff; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: #64748b; }
+    .answers-table td { padding: 3px 5px; border: 1px solid #dde5ff; vertical-align: top; }
+    .answers-table .r-correct { background: #f0fdf4; }
+    .answers-table .r-wrong   { background: #fff5f5; }
+    .answers-table .r-skipped { opacity: .65; }
+    .mark-ok  { color: #16a34a; font-weight: 900; font-size: 13px; }
+    .mark-no  { color: #dc2626; font-weight: 900; font-size: 13px; }
+    .mark-skip{ color: #94a3b8; font-size: 13px; }
+
+    .subj-header td {
+      background: #060c1d; color: #fff; font-weight: 700;
+      font-size: 9px; padding: 3px 6px; letter-spacing: .03em;
+    }
+
+    /* ── Подписи ── */
+    .signatures {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 12mm; margin-top: 10mm; padding-top: 5mm;
+      border-top: 1px solid #dde5ff;
+    }
+    .sig-line {
+      display: flex; flex-direction: column; gap: 2px;
+    }
+    .sig-label { font-size: 10px; color: #64748b; }
+    .sig-blank { border-bottom: 1px solid #111; margin-bottom: 3px; height: 8mm; }
+    .sig-name  { font-size: 10px; color: #64748b; text-align: center; }
+
+    .footer-note {
+      font-size: 9px; color: #94a3b8; text-align: center;
+      margin-top: 6mm; border-top: 1px solid #dde5ff; padding-top: 3mm;
+    }
+
+    /* ── Печать ── */
+    @media print {
+      .screen-only { display: none !important; }
+      body { background: #fff; }
+      .page { margin: 0; box-shadow: none; width: 100%; min-height: auto; padding: 12mm; }
+      @page { size: A4 portrait; margin: 0; }
+      .page-break { page-break-before: always; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Панель управления (только на экране) -->
+<div class="screen-only">
+  <a href="{% url 'staff_student_detail' abiturient.pk %}" class="btn-back">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Назад
+  </a>
+  <button onclick="window.print()" class="btn-print">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+    Печать / Сохранить PDF
+  </button>
+  <span class="screen-hint">Ctrl+P → выберите «Сохранить как PDF»</span>
+</div>
+
+<!-- ── Страница A4 ── -->
+<div class="page">
+
+  <!-- Шапка -->
+  <div class="doc-header">
+    <div class="doc-logo-block">
+      <div class="doc-logo-icon"><img src="{% static 'img/favicon-globe.png' %}" alt="Логотип"></div>
+      <div>
+        <div class="doc-logo-name">INNOVATION COLLEGE OF IT &amp; BUSINESS</div>
+        <div class="doc-logo-sub">ИННОВАЦИОННЫЙ КОЛЛЕДЖ АЙТИ И БИЗНЕСА</div>
+      </div>
+    </div>
+    <div class="doc-title-block">
+      <div class="doc-title">ВЕДОМОСТЬ РЕЗУЛЬТАТОВ</div>
+      <div class="doc-subtitle">Вступительное тестирование {{ now|date:"Y" }}</div>
+      <div class="doc-date">Дата выдачи: {{ now|date:"d.m.Y  H:i" }}</div>
+    </div>
+  </div>
+
+  <!-- Заголовок документа -->
+  <div style="text-align:center; margin: 6mm 0 5mm;">
+    <div style="font-size:16px; font-weight:900; letter-spacing:.05em;">ЗАЯВЛЕНИЕ АБИТУРИЕНТА №&nbsp;{{ abiturient.pk }}</div>
+  </div>
+
+  <!-- Данные абитуриента + тестирования (компактно) -->
+  <div class="section-title">Данные абитуриента и тестирования</div>
+  <div class="info-grid" style="grid-template-columns:1fr 1fr 1fr; gap:2mm;">
+    <div class="info-row">
+      <span class="info-label">Фамилия</span>
+      <span class="info-value">{{ abiturient.last_name }}</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Имя</span>
+      <span class="info-value">{{ abiturient.first_name }}</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Отчество</span>
+      <span class="info-value">{{ abiturient.middle_name }}</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Дата рождения</span>
+      <span class="info-value">{{ abiturient.birth_date|date:"d.m.Y" }}</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">{% if abiturient.pin %}ПИН{% else %}Свид. о рожд.{% endif %}</span>
+      <span class="info-value" style="font-family:'Courier New',monospace;letter-spacing:.05em">{{ abiturient.doc_number }}</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Класс</span>
+      <span class="info-value">{{ abiturient.get_grade_display }}</span>
+    </div>
+    <div class="info-row" style="grid-column:span 2">
+      <span class="info-label">Учебное заведение</span>
+      <span class="info-value">{{ abiturient.school }}</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Вариант теста</span>
+      <span class="info-value">{{ abiturient.test_variant.name|default:"—" }}</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Начало</span>
+      <span class="info-value">{{ abiturient.started_at|date:"d.m.Y  H:i" }}</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Завершение</span>
+      <span class="info-value">{{ abiturient.finished_at|date:"H:i"|default:"—" }}</span>
+    </div>
+  </div>
+
+  <!-- Итоговые баллы -->
+  {% if abiturient.result %}
+  <div class="section-title" style="margin-top:6mm">Итоговые баллы</div>
+  <table class="scores-table">
+    <thead>
+      <tr>
+        <th>Английский язык</th>
+        <th>Математика</th>
+        <th>Русский язык</th>
+        <th>ИТОГОВЫЙ БАЛЛ</th>
+        <th>Скидка %</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>{{ abiturient.result.english_score }} / 20</td>
+        <td>{{ abiturient.result.math_score }} / 20</td>
+        <td>{{ abiturient.result.russian_score }} / 20</td>
+        <td class="total-cell">{{ abiturient.result.total_score }} / 60</td>
+        <td>&nbsp;</td>
+      </tr>
+    </tbody>
+  </table>
+  {% endif %}
+
+  <!-- Информационный блок -->
+  <div style="margin-top:6mm; padding:4mm 5mm; border:1px solid #dde5ff; border-radius:6px; font-size:11.5px; line-height:1.7; color:#111;">
+    <p><b>Первый этап: Абитуриент</b>, поступающий в Инновационный колледж АйТи и Бизнеса, обязан пройти вступительное тестирование по следующим предметам:</p>
+    <ul style="margin:2mm 0 2mm 6mm;">
+      <li>Математика;</li>
+      <li>Иностранный язык (английский язык);</li>
+      <li>Русский язык и литература.</li>
+    </ul>
+    <p>Тестирование проводится для выявления уровня знания поступающего, и выявления уровня подготовленности. По результатам тестирования абитуриенту могут быть предоставлены скидки (льготы) на обучение в соответствии с набранными баллами и положением колледжа.</p>
+  </div>
+
+  <!-- Блок результата и зачисления -->
+  <div style="margin-top:4mm; padding:4mm 5mm; border:1.5px solid #1d4ed8; border-radius:6px; font-size:11.5px; line-height:1.9; color:#111; background:#f8faff;">
+    <p>Сообщаем:&nbsp;<b>Вы успешно прошли внутреннее тестирование в Инновационный колледж АйТи и Бизнеса</b>, и рекомендованы к зачислению на {{ course }} курс учебный год {{ academic_year }}.</p>
+    <p style="margin-top:2mm;">1.&nbsp;&nbsp;На основании результатов тестирования Вам предоставляется <b>Официальная именная скидка:</b>
+      <span style="display:inline-block; border-bottom:1px solid #111; min-width:40mm; margin:0 2mm;">&nbsp;</span>%
+    </p>
+    <p>2.&nbsp;&nbsp;<b>Контракт (прописью)</b>
+      <span style="display:inline-block; border-bottom:1px solid #111; min-width:122mm; margin:0 2mm;">&nbsp;</span>сом
+    </p>
+    <p>3.&nbsp;&nbsp;<b>Следующий этап:</b> Пройти регистрацию на сайте министерство образования и просвещения&nbsp;<b>2020.edu.gov.kg</b>&nbsp;&nbsp;(Вопросы-Ответы | СПУЗ Абитуриент Онлайн).</p>
+    <p style="margin-top:3mm;">Вы имеете возможность получить дополнительную индивидуальную скидку — обсудите детали с приёмной комиссией.</p>
+    <p>С этого момента вы официально считаетесь частью большого студенческого сообщества <b>Инновационный колледж АйТи и Бизнеса</b>.</p>
+    <p>Ваше имя занесено в предварительный список зачисленных студентов.</p>
+  </div>
+
+  <!-- ОЗНАКОМЛЕН -->
+  <div style="margin-top:5mm; display:flex; align-items:flex-end; gap:4mm; font-size:12px; font-weight:700;">
+    <span>ОЗНАКОМЛЕН</span>
+    <span style="flex:1; border-bottom:1px solid #111;">&nbsp;</span>
+    <span>дата</span>
+    <span style="min-width:35mm; border-bottom:1px solid #111;">&nbsp;</span>
+  </div>
+
+</div>
+
+<!-- ── Страница 2 — Детализация ответов ── -->
+{% if subjects_data %}
+<div class="page page-break">
+
+  <div class="section-title" style="margin-top:0">Детализация ответов — {{ abiturient.full_name }}</div>
+  <table class="answers-table">
+    <thead>
+      <tr>
+        <th style="width:28px">№</th>
+        <th>Вопрос</th>
+        <th>Ответ абитуриента</th>
+        <th>Правильный ответ</th>
+        <th style="width:36px;text-align:center">Итог</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for group in subjects_data %}
+      <tr class="subj-header">
+        <td colspan="5">{{ group.subject.name }} — {{ group.correct }}/{{ group.total }} правильных</td>
+      </tr>
+      {% for item in group.answers %}
+      <tr class="{% if item.answer.is_correct %}r-correct{% elif not item.answer.selected_option %}r-skipped{% else %}r-wrong{% endif %}">
+        <td style="text-align:center;color:#94a3b8;font-weight:600">{{ forloop.counter }}</td>
+        <td>{{ item.answer.question.text|striptags|truncatechars:60 }}</td>
+        <td>{{ item.answer.selected_option.text|striptags|truncatechars:35|default:"—" }}</td>
+        <td>{{ item.correct_opt.text|striptags|truncatechars:35|default:"—" }}</td>
+        <td style="text-align:center">
+          {% if item.answer.is_correct %}<span class="mark-ok">✓</span>
+          {% elif not item.answer.selected_option %}<span class="mark-skip">—</span>
+          {% else %}<span class="mark-no">✗</span>{% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+      {% endfor %}
+    </tbody>
+  </table>
+
+</div>
+{% endif %}
+
+<script>
+  // Автоматически открываем диалог печати (опционально)
+  // window.addEventListener('load', () => setTimeout(() => window.print(), 500));
+</script>
+</body>
+</html>
