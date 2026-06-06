@@ -23,6 +23,22 @@ from .forms import AbiturientRegistrationForm
 TEST_DURATION = getattr(settings, 'TEST_DURATION_SECONDS', 5400)
 
 
+def _build_subject_counts_json():
+    """Возвращает JSON со структурой вопросов по предметам для каждого класса."""
+    subject_counts = {}
+    for grade in ['9', '11']:
+        variant = TestVariant.objects.filter(grade=grade, is_active=True).first()
+        if variant:
+            counts = {}
+            for subj in Subject.objects.order_by('order'):
+                cnt = Question.objects.filter(variant=variant, subject=subj).count()
+                if cnt:
+                    counts[subj.name] = cnt
+            counts['total'] = sum(counts.values())
+            subject_counts[grade] = counts
+    return json.dumps(subject_counts, ensure_ascii=False)
+
+
 def register_view(request):
     """
     Страница регистрации абитуриента.
@@ -57,6 +73,7 @@ def register_view(request):
                     'form': form,
                     'code_required': code_required,
                     'code_error': code_error,
+                    'subject_counts_json': _build_subject_counts_json(),
                 })
 
         form = AbiturientRegistrationForm(request.POST)
@@ -73,7 +90,10 @@ def register_view(request):
                     f'Нет доступных вариантов теста для {abiturient.get_grade_display()}. '
                     'Пожалуйста, обратитесь к администратору.'
                 )
-                return render(request, 'testing/register.html', {'form': form})
+                return render(request, 'testing/register.html', {
+                    'form': form,
+                    'subject_counts_json': _build_subject_counts_json(),
+                })
 
             # Случайно выбираем вариант (согласно ТЗ — random.choice)
             chosen_variant = random.choice(active_variants)
@@ -91,24 +111,11 @@ def register_view(request):
     else:
         form = AbiturientRegistrationForm()
 
-    # Собираем структуру вопросов по предметам для каждого класса
-    subject_counts = {}
-    for grade in ['9', '11']:
-        variant = TestVariant.objects.filter(grade=grade, is_active=True).first()
-        if variant:
-            counts = {}
-            for subj in Subject.objects.order_by('order'):
-                cnt = Question.objects.filter(variant=variant, subject=subj).count()
-                if cnt:
-                    counts[subj.name] = cnt
-            counts['total'] = sum(counts.values())
-            subject_counts[grade] = counts
-
     return render(request, 'testing/register.html', {
         'form': form,
         'code_required': code_required,
         'code_error': code_error,
-        'subject_counts_json': json.dumps(subject_counts, ensure_ascii=False),
+        'subject_counts_json': _build_subject_counts_json(),
     })
 
 
