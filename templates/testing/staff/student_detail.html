@@ -101,17 +101,17 @@
           <div class="score-card score-card--english">
             <div class="score-card-label">Английский</div>
             <div class="score-card-num">{{ abiturient.result.english_score }}</div>
-            <div class="score-card-max">из 20</div>
+            <div class="score-card-max">из {{ english_max }}</div>
           </div>
           <div class="score-card score-card--math">
             <div class="score-card-label">Математика</div>
             <div class="score-card-num">{{ abiturient.result.math_score }}</div>
-            <div class="score-card-max">из 20</div>
+            <div class="score-card-max">из {{ math_max }}</div>
           </div>
           <div class="score-card score-card--russian">
             <div class="score-card-label">Русский яз.</div>
             <div class="score-card-num">{{ abiturient.result.russian_score }}</div>
-            <div class="score-card-max">из 20</div>
+            <div class="score-card-max">из {{ russian_max }}</div>
           </div>
           <div class="score-card score-card--total
             {% if abiturient.result.total_score >= 42 %}score-card--green
@@ -119,7 +119,7 @@
             {% else %}score-card--red{% endif %}">
             <div class="score-card-label">ИТОГО</div>
             <div class="score-card-num">{{ abiturient.result.total_score }}</div>
-            <div class="score-card-max">из 60</div>
+            <div class="score-card-max">из {{ max_total }}</div>
           </div>
         </div>
         {% endif %}

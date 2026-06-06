@@ -112,7 +112,7 @@
         </div>
         <div>
           <div class="staff-stat-num" style="color:#d97706">{{ avg_score }}</div>
-          <div class="staff-stat-label">Средний балл (из 60)</div>
+          <div class="staff-stat-label">Средний балл</div>
         </div>
       </div>
       <div class="staff-stat-card" style="margin-left:auto">
@@ -207,7 +207,7 @@
                 {% if ab.result.total_score >= 42 %}total-badge--green
                 {% elif ab.result.total_score >= 30 %}total-badge--yellow
                 {% else %}total-badge--red{% endif %}">
-                {{ ab.result.total_score }}/60
+                {{ ab.result.total_score }}/{{ ab.test_variant.question_count }}
               </span>
             </td>
             <td><span class="status-badge status-badge--done">Завершён</span></td>

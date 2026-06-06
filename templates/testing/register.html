@@ -221,10 +221,10 @@
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
           </div>
           <h4>Структура теста</h4>
-          <ul class="info-list">
-            <li><span class="subj-dot subj-dot--english"></span> Английский язык — 20 вопросов</li>
-            <li><span class="subj-dot subj-dot--math"></span> Математика — 20 вопросов</li>
-            <li><span class="subj-dot subj-dot--russian"></span> Русский язык — 20 вопросов</li>
+          <ul class="info-list" id="test-structure-list">
+            <li><span class="subj-dot subj-dot--english"></span> Английский язык — <span id="cnt-english">—</span> вопросов</li>
+            <li><span class="subj-dot subj-dot--math"></span> Математика — <span id="cnt-math">—</span> вопросов</li>
+            <li><span class="subj-dot subj-dot--russian"></span> Русский язык — <span id="cnt-russian">—</span> вопросов</li>
           </ul>
         </div>
 
@@ -264,6 +264,23 @@
 
 {% block extra_js %}
 <script>
+  // Динамическое обновление структуры теста при выборе класса
+  const subjectCounts = {{ subject_counts_json|safe }};
+  const gradeSelect = document.querySelector('[name="grade"]');
+
+  function updateTestStructure() {
+    const grade = gradeSelect ? gradeSelect.value : '';
+    const counts = subjectCounts[grade] || {};
+    document.getElementById('cnt-english').textContent = counts['Английский язык'] || '—';
+    document.getElementById('cnt-math').textContent    = counts['Математика']      || '—';
+    document.getElementById('cnt-russian').textContent = counts['Русский язык']    || '—';
+  }
+
+  if (gradeSelect) {
+    gradeSelect.addEventListener('change', updateTestStructure);
+    updateTestStructure();
+  }
+
   // Блокируем кнопку «Начать» пока не поставлена галочка согласия
   const agreeCheck = document.getElementById('agree-check');
   const submitBtn = document.getElementById('submit-btn');

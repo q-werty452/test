@@ -21,7 +21,7 @@ import openpyxl
 from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 from openpyxl.utils import get_column_letter
 
-from .models import Abiturient, TestResult, AbiturientAnswer, Subject, TestVariant, SiteSettings
+from .models import Abiturient, TestResult, AbiturientAnswer, Subject, TestVariant, SiteSettings, Question
 
 # URL для редиректа при недостатке прав
 _LOGIN_URL = 'staff_login'
@@ -138,10 +138,15 @@ def staff_student_detail_view(request, pk):
     )
 
     subjects_data = _group_answers_by_subject(answers)
+    english_max, math_max, russian_max, max_total = _compute_max_scores(subjects_data)
 
     context = {
         'abiturient':    abiturient,
         'subjects_data': subjects_data,
+        'english_max':   english_max,
+        'math_max':      math_max,
+        'russian_max':   russian_max,
+        'max_total':     max_total,
     }
     return render(request, 'testing/staff/student_detail.html', context)
 
@@ -172,6 +177,7 @@ def staff_print_report_view(request, pk):
     )
 
     subjects_data = _group_answers_by_subject(answers)
+    english_max, math_max, russian_max, max_total = _compute_max_scores(subjects_data)
 
     now = timezone.now()
     course = 1 if abiturient.grade == '9' else 2
@@ -184,6 +190,10 @@ def staff_print_report_view(request, pk):
         'now':           now,
         'course':        course,
         'academic_year': academic_year,
+        'english_max':   english_max,
+        'math_max':      math_max,
+        'russian_max':   russian_max,
+        'max_total':     max_total,
     }
     return render(request, 'testing/staff/print_report.html', context)
 
@@ -250,10 +260,10 @@ def export_excel_view(request):
         ('Дата теста',    13),
         ('Начало',        10),
         ('Конец',         10),
-        ('Английский\n(из 20)', 13),
-        ('Математика\n(из 20)', 13),
-        ('Русский яз.\n(из 20)',13),
-        ('Итого\n(из 60)', 11),
+        ('Английский', 13),
+        ('Математика', 13),
+        ('Русский яз.', 13),
+        ('Итого', 11),
         ('%',              8),
     ]
 
@@ -283,7 +293,8 @@ def export_excel_view(request):
         mat   = result.math_score    if result else '—'
         rus   = result.russian_score if result else '—'
         total = result.total_score   if result else '—'
-        pct   = f'{round(result.total_score / 60 * 100)}%' if result else '—'
+        max_q = Question.objects.filter(variant=ab.test_variant).count() if ab.test_variant else 0
+        pct   = f'{round(result.total_score / max_q * 100)}%' if (result and max_q) else '—'
 
         row_values = [
             row_idx,
@@ -380,6 +391,20 @@ def exam_settings_view(request):
             messages.success(request, 'Код доступа отключён — регистрация без кода.')
 
     return redirect('staff_dashboard')
+
+
+def _compute_max_scores(subjects_data):
+    """Возвращает (english_max, math_max, russian_max, total_max) из данных subjects_data."""
+    english_max = math_max = russian_max = 0
+    for g in subjects_data:
+        name_lower = g['subject'].name.lower()
+        if 'англ' in name_lower or 'english' in name_lower:
+            english_max = g['total']
+        elif 'мат' in name_lower or 'math' in name_lower:
+            math_max = g['total']
+        elif 'рус' in name_lower or 'russian' in name_lower:
+            russian_max = g['total']
+    return english_max, math_max, russian_max, english_max + math_max + russian_max
 
 
 def _group_answers_by_subject(answers_qs):

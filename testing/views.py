@@ -4,6 +4,7 @@
 Маршрут пользователя:
   /  (register_view)  →  /test/ (test_view)  →  POST /test/submit/ (submit_test_view)  →  /complete/ (complete_view)
 """
+import json
 import time
 import random
 
@@ -90,10 +91,24 @@ def register_view(request):
     else:
         form = AbiturientRegistrationForm()
 
+    # Собираем структуру вопросов по предметам для каждого класса
+    subject_counts = {}
+    for grade in ['9', '11']:
+        variant = TestVariant.objects.filter(grade=grade, is_active=True).first()
+        if variant:
+            counts = {}
+            for subj in Subject.objects.order_by('order'):
+                cnt = Question.objects.filter(variant=variant, subject=subj).count()
+                if cnt:
+                    counts[subj.name] = cnt
+            counts['total'] = sum(counts.values())
+            subject_counts[grade] = counts
+
     return render(request, 'testing/register.html', {
         'form': form,
         'code_required': code_required,
         'code_error': code_error,
+        'subject_counts_json': json.dumps(subject_counts, ensure_ascii=False),
     })
 
 

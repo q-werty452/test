@@ -111,13 +111,27 @@
       margin-top: 6mm; border-top: 1px solid #dde5ff; padding-top: 3mm;
     }
 
+    /* ── Подпись не отрывается от предыдущего блока ── */
+    .sign-block {
+      page-break-inside: avoid;
+      break-inside: avoid;
+      page-break-before: avoid;
+      break-before: avoid;
+    }
+
     /* ── Печать ── */
     @media print {
       .screen-only { display: none !important; }
       body { background: #fff; }
-      .page { margin: 0; box-shadow: none; width: 100%; min-height: auto; padding: 12mm; }
+      .page { margin: 0; box-shadow: none; width: 100%; min-height: auto; padding: 8mm 12mm; }
       @page { size: A4 portrait; margin: 0; }
       .page-break { page-break-before: always; }
+
+      /* Уплотняем все вертикальные отступы */
+      .doc-header { margin-bottom: 4mm; padding-bottom: 3mm; }
+      .section-title { margin-top: 3mm !important; margin-bottom: 2mm; }
+      .info-grid { gap: 2mm; }
+      .scores-table th, .scores-table td { padding: 4px 8px; }
     }
   </style>
 </head>
@@ -220,10 +234,10 @@
     </thead>
     <tbody>
       <tr>
-        <td>{{ abiturient.result.english_score }} / 20</td>
-        <td>{{ abiturient.result.math_score }} / 20</td>
-        <td>{{ abiturient.result.russian_score }} / 20</td>
-        <td class="total-cell">{{ abiturient.result.total_score }} / 60</td>
+        <td>{{ abiturient.result.english_score }} / {{ english_max }}</td>
+        <td>{{ abiturient.result.math_score }} / {{ math_max }}</td>
+        <td>{{ abiturient.result.russian_score }} / {{ russian_max }}</td>
+        <td class="total-cell">{{ abiturient.result.total_score }} / {{ max_total }}</td>
         <td>&nbsp;</td>
       </tr>
     </tbody>
@@ -231,9 +245,9 @@
   {% endif %}
 
   <!-- Информационный блок -->
-  <div style="margin-top:6mm; padding:4mm 5mm; border:1px solid #dde5ff; border-radius:6px; font-size:11.5px; line-height:1.7; color:#111;">
+  <div style="margin-top:4mm; padding:3mm 5mm; border:1px solid #dde5ff; border-radius:6px; font-size:11px; line-height:1.6; color:#111;">
     <p><b>Первый этап: Абитуриент</b>, поступающий в Инновационный колледж АйТи и Бизнеса, обязан пройти вступительное тестирование по следующим предметам:</p>
-    <ul style="margin:2mm 0 2mm 6mm;">
+    <ul style="margin:1mm 0 1mm 6mm;">
       <li>Математика;</li>
       <li>Иностранный язык (английский язык);</li>
       <li>Русский язык и литература.</li>
@@ -242,7 +256,7 @@
   </div>
 
   <!-- Блок результата и зачисления -->
-  <div style="margin-top:4mm; padding:4mm 5mm; border:1.5px solid #1d4ed8; border-radius:6px; font-size:11.5px; line-height:1.9; color:#111; background:#f8faff;">
+  <div style="margin-top:3mm; padding:3mm 5mm; border:1.5px solid #1d4ed8; border-radius:6px; font-size:11px; line-height:1.7; color:#111; background:#f8faff;">
     <p>Сообщаем:&nbsp;<b>Вы успешно прошли внутреннее тестирование в Инновационный колледж АйТи и Бизнеса</b>, и рекомендованы к зачислению на {{ course }} курс учебный год {{ academic_year }}.</p>
     <p style="margin-top:2mm;">1.&nbsp;&nbsp;На основании результатов тестирования Вам предоставляется <b>Официальная именная скидка:</b>
       <span style="display:inline-block; border-bottom:1px solid #111; min-width:40mm; margin:0 2mm;">&nbsp;</span>%
@@ -257,7 +271,7 @@
   </div>
 
   <!-- ОЗНАКОМЛЕН -->
-  <div style="margin-top:5mm; display:flex; align-items:flex-end; gap:4mm; font-size:12px; font-weight:700;">
+  <div class="sign-block" style="margin-top:4mm; display:flex; align-items:flex-end; gap:4mm; font-size:12px; font-weight:700;">
     <span>ОЗНАКОМЛЕН</span>
     <span style="flex:1; border-bottom:1px solid #111;">&nbsp;</span>
     <span>дата</span>
