@@ -232,14 +232,14 @@ def export_excel_view(request):
     _border = Border(left=_side, right=_side, top=_side, bottom=_side)
 
     # ── Шапка листа ──
-    ws.merge_cells('A1:Q1')
+    ws.merge_cells('A1:R1')
     ws['A1'] = 'IT COLLEGE — Результаты вступительного тестирования'
     ws['A1'].font      = _font(bold=True, size=14)
     ws['A1'].alignment = _align()
     ws['A1'].fill      = _fill('EFF2FF')
     ws.row_dimensions[1].height = 30
 
-    ws.merge_cells('A2:Q2')
+    ws.merge_cells('A2:R2')
     ws['A2'] = f'Сформировано: {datetime.now().strftime("%d.%m.%Y  %H:%M")}'
     ws['A2'].font      = _font(size=10, color=GRAY)
     ws['A2'].alignment = _align()
@@ -255,7 +255,8 @@ def export_excel_view(request):
         ('Дата рождения', 14),
         ('Школа / Заведение', 30),
         ('Класс',          8),
-        ('ПИН',           16),
+        ('Телефон',       18),
+        ('ПИН / Свид.',   18),
         ('Вариант',       12),
         ('Дата теста',    13),
         ('Начало',        10),
@@ -302,6 +303,7 @@ def export_excel_view(request):
             ab.birth_date.strftime('%d.%m.%Y') if ab.birth_date else '—',
             ab.school,
             ab.get_grade_display(),
+            ab.phone or '—',
             ab.doc_number,
             ab.test_variant.name if ab.test_variant else '—',
             ab.started_at.astimezone().strftime('%d.%m.%Y') if ab.started_at else '—',
@@ -310,7 +312,7 @@ def export_excel_view(request):
             eng, mat, rus, total, pct,
         ]
 
-        left_cols = {2, 3, 4, 6, 8}   # ФИО, Школа, ПИН — выравнивание по левому краю
+        left_cols = {2, 3, 4, 6, 8, 9}  # ФИО, Школа, Телефон, ПИН — выравнивание по левому краю
         for col_idx, value in enumerate(row_values, 1):
             cell = ws.cell(row=r, column=col_idx, value=value)
             cell.border    = _border
@@ -333,7 +335,7 @@ def export_excel_view(request):
 
         # Чередование строк
         if row_idx % 2 == 0:
-            for col_idx in range(1, 18):
+            for col_idx in range(1, 19):
                 cell = ws.cell(row=r, column=col_idx)
                 if cell.fill.fgColor.rgb in ('00000000', '00FFFFFF'):
                     cell.fill = _fill('F8FAFF')
@@ -343,7 +345,7 @@ def export_excel_view(request):
     # ── Итоговая строка ──
     total_count = len(abiturients)
     last_r = total_count + 5
-    ws.merge_cells(f'A{last_r}:L{last_r}')
+    ws.merge_cells(f'A{last_r}:M{last_r}')
     ws.cell(row=last_r, column=1, value=f'Всего абитуриентов: {total_count}').font = _font(bold=True)
     ws.cell(row=last_r, column=1).alignment = _align('left')
 

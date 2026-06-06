@@ -18,7 +18,7 @@
   <div class="container">
 
     <!-- ─── УПРАВЛЕНИЕ ЭКЗАМЕНОМ ─── -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px;">
+    <div class="exam-control-grid">
 
       <!-- Кнопка вкл/выкл -->
       <div style="background:#fff;border:2px solid {% if site.exam_is_active %}#86efac{% else %}#fca5a5{% endif %};border-radius:16px;padding:20px 24px;">
@@ -160,7 +160,7 @@
           <tr>
             <th>№</th>
             <th>ФИО</th>
-            <th>ПИН</th>
+            <th>Телефон</th>
             <th>Школа</th>
             <th>Класс</th>
             <th>Вар.</th>
@@ -181,7 +181,7 @@
               <strong>{{ ab.last_name }} {{ ab.first_name }}</strong><br>
               <span class="sub-text">{{ ab.middle_name }}</span>
             </td>
-            <td><code class="pin-code">{{ ab.doc_number }}</code></td>
+            <td>{{ ab.phone|default:"—" }}</td>
             <td>
               <span title="{{ ab.school }}">{{ ab.school|truncatechars:9 }}</span>
             </td>
@@ -342,5 +342,87 @@
 }
 .staff-empty h3 { font-size: 18px; font-weight: 700; color: var(--dark); margin: 16px 0 8px; }
 .staff-empty p  { font-size: 14px; }
+
+/* ── Управляющая сетка ── */
+.exam-control-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+/* ══════════════════════════════════════
+   АДАПТИВНОСТЬ — ПЛАНШЕТ (≤900px)
+══════════════════════════════════════ */
+@media (max-width: 900px) {
+  /* Таблица: скрываем Школу, Вариант, Дату, три отдельных балла */
+  .staff-table th:nth-child(4),
+  .staff-table td:nth-child(4),  /* Школа */
+  .staff-table th:nth-child(6),
+  .staff-table td:nth-child(6),  /* Вар. */
+  .staff-table th:nth-child(7),
+  .staff-table td:nth-child(7),  /* Дата/время */
+  .staff-table th:nth-child(8),
+  .staff-table td:nth-child(8),  /* Англ. */
+  .staff-table th:nth-child(9),
+  .staff-table td:nth-child(9),  /* Мат. */
+  .staff-table th:nth-child(10),
+  .staff-table td:nth-child(10)  /* Рус. */
+  { display: none; }
+}
+
+/* ══════════════════════════════════════
+   АДАПТИВНОСТЬ — МОБИЛЬ (≤600px)
+══════════════════════════════════════ */
+@media (max-width: 600px) {
+
+  /* Управление экзаменом → одна колонка */
+  .exam-control-grid { grid-template-columns: 1fr; }
+
+  /* Статистика → 2 колонки */
+  .staff-stats-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .staff-stat-card { min-width: 0; }
+  /* Кнопка Excel — на всю ширину */
+  .staff-stats-row > div:last-child,
+  .staff-stats-row > a:last-child { grid-column: span 2; margin-left: 0 !important; }
+  .staff-stats-row .btn { width: 100%; justify-content: center; }
+
+  /* Фильтры → колонка */
+  .staff-filter-bar { flex-direction: column; align-items: stretch; }
+  .staff-filter-bar .input-with-icon,
+  .staff-filter-bar select,
+  .staff-filter-bar .btn { width: 100% !important; }
+
+  /* Таблица — дополнительно скрываем №, Телефон, Класс */
+  .staff-table th:nth-child(1),
+  .staff-table td:nth-child(1),  /* № */
+  .staff-table th:nth-child(3),
+  .staff-table td:nth-child(3),  /* Телефон */
+  .staff-table th:nth-child(5),
+  .staff-table td:nth-child(5)   /* Класс */
+  { display: none; }
+
+  /* Ячейки таблицы компактнее */
+  .staff-table th,
+  .staff-table td { padding: 10px 10px; }
+
+  /* Кнопки действий — вертикально */
+  .actions-col .actions-wrap { flex-direction: column; gap: 4px; }
+  .actions-col .actions-wrap .btn { font-size: 11px; }
+
+  /* Кнопки в блоке управления */
+  .exam-control-grid .btn { white-space: normal; }
+
+  /* Код доступа — flex в колонку */
+  .exam-control-grid form > div[style*="display:flex"] {
+    flex-direction: column;
+  }
+  .exam-control-grid form > div[style*="display:flex"] input { min-width: 0; }
+  .exam-control-grid form > div[style*="display:flex"] .btn { width: 100%; }
+}
 </style>
 {% endblock %}

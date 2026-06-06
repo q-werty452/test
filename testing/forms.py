@@ -11,7 +11,7 @@ class AbiturientRegistrationForm(forms.ModelForm):
         model = Abiturient
         fields = [
             'last_name', 'first_name', 'middle_name',
-            'birth_date', 'school', 'grade',
+            'birth_date', 'school', 'grade', 'phone',
             'pin', 'birth_certificate',
         ]
         widgets = {
@@ -47,6 +47,13 @@ class AbiturientRegistrationForm(forms.ModelForm):
                 'inputmode': 'numeric',
                 'autocomplete': 'off',
             }),
+            'phone': forms.TextInput(attrs={
+                'class': 'form-input',
+                'placeholder': '+996 700 000000 или +7 900 000-00-00',
+                'maxlength': '30',
+                'type': 'tel',
+                'autocomplete': 'tel',
+            }),
             'birth_certificate': forms.TextInput(attrs={
                 'class': 'form-input',
                 'placeholder': 'KPX 1234567',
@@ -62,6 +69,7 @@ class AbiturientRegistrationForm(forms.ModelForm):
             'birth_date': 'Дата рождения',
             'school': 'Школа / Учебное заведение',
             'grade': 'Оканчиваемый класс',
+            'phone': 'Номер телефона',
             'pin': 'ПИН (14 цифр, из паспорта)',
             'birth_certificate': 'Свидетельство о рождении',
         }

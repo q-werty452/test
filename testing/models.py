@@ -161,6 +161,7 @@ class Abiturient(models.Model):
     birth_date = models.DateField(verbose_name='Дата рождения')
     school = models.CharField(max_length=300, verbose_name='Школа / Учебное заведение')
     grade = models.CharField(max_length=2, choices=GRADE_CHOICES, verbose_name='Класс')
+    phone = models.CharField(max_length=30, verbose_name='Номер телефона')
     # Документ удостоверяющий личность — заполняется хотя бы одно из двух полей
     pin = models.CharField(
         max_length=14, blank=True, null=True, unique=True,

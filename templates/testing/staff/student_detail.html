@@ -49,6 +49,7 @@
           <tr><td>Дата рождения</td><td>{{ abiturient.birth_date|date:"d.m.Y" }}</td></tr>
           <tr><td>Школа</td><td>{{ abiturient.school }}</td></tr>
           <tr><td>Класс</td><td><span class="grade-badge">{{ abiturient.get_grade_display }}</span></td></tr>
+          <tr><td>Телефон</td><td>{{ abiturient.phone|default:"—" }}</td></tr>
           {% if abiturient.pin %}<tr><td>ПИН</td><td><code class="pin-code">{{ abiturient.pin }}</code></td></tr>{% endif %}
           {% if abiturient.birth_certificate %}<tr><td>Свид. о рождении</td><td><code class="pin-code">{{ abiturient.birth_certificate }}</code></td></tr>{% endif %}
         </table>

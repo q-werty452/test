@@ -206,6 +206,10 @@
       <span class="info-value">{{ abiturient.school }}</span>
     </div>
     <div class="info-row">
+      <span class="info-label">Телефон</span>
+      <span class="info-value">{{ abiturient.phone|default:"—" }}</span>
+    </div>
+    <div class="info-row">
       <span class="info-label">Вариант теста</span>
       <span class="info-value">{{ abiturient.test_variant.name|default:"—" }}</span>
     </div>
