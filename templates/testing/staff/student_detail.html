@@ -115,8 +115,8 @@
             <div class="score-card-max">из {{ russian_max }}</div>
           </div>
           <div class="score-card score-card--total
-            {% if abiturient.result.total_score >= 42 %}score-card--green
-            {% elif abiturient.result.total_score >= 30 %}score-card--yellow
+            {% if abiturient.result.total_score >= 84 %}score-card--green
+            {% elif abiturient.result.total_score >= 60 %}score-card--yellow
             {% else %}score-card--red{% endif %}">
             <div class="score-card-label">ИТОГО</div>
             <div class="score-card-num">{{ abiturient.result.total_score }}</div>
@@ -139,7 +139,7 @@
         <strong>{{ group.subject.name }}</strong>
         <span class="answers-score-badge
           {% if group.correct >= 14 %}answers-score-badge--green
-          {% elif group.correct >= 10 %}answers-score-badge--yellow
+          {% elif group.correct >= 7 %}answers-score-badge--yellow
           {% else %}answers-score-badge--red{% endif %}">
           {{ group.correct }} / {{ group.total }} правильных
         </span>

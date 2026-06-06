@@ -86,6 +86,10 @@ class TestVariant(models.Model):
         return self.questions.count()
     question_count.short_description = 'Кол-во вопросов'
 
+    def max_points(self):
+        return self.questions.count() * 2
+    max_points.short_description = 'Макс. баллов'
+
 
 class Question(models.Model):
     """

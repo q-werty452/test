@@ -204,10 +204,10 @@
             <td class="score-col">{{ ab.result.russian_score }}</td>
             <td class="score-col total-col">
               <span class="total-badge
-                {% if ab.result.total_score >= 42 %}total-badge--green
-                {% elif ab.result.total_score >= 30 %}total-badge--yellow
+                {% if ab.result.total_score >= 84 %}total-badge--green
+                {% elif ab.result.total_score >= 60 %}total-badge--yellow
                 {% else %}total-badge--red{% endif %}">
-                {{ ab.result.total_score }}/{{ ab.test_variant.question_count }}
+                {{ ab.result.total_score }}/{{ ab.test_variant.max_points }}
               </span>
             </td>
             <td><span class="status-badge status-badge--done">Завершён</span></td>

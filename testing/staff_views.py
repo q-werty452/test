@@ -295,7 +295,7 @@ def export_excel_view(request):
         rus   = result.russian_score if result else '—'
         total = result.total_score   if result else '—'
         max_q = Question.objects.filter(variant=ab.test_variant).count() if ab.test_variant else 0
-        pct   = f'{round(result.total_score / max_q * 100)}%' if (result and max_q) else '—'
+        pct   = f'{round(result.total_score / (max_q * 2) * 100)}%' if (result and max_q) else '—'
 
         row_values = [
             row_idx,
@@ -323,10 +323,10 @@ def export_excel_view(request):
         if result:
             score_cell      = ws.cell(row=r, column=16)
             score_cell.font = _font(bold=True, size=10)
-            if result.total_score >= 42:
+            if result.total_score >= 84:
                 score_cell.fill = _fill('DCFCE7')   # зелёный
                 score_cell.font = _font(bold=True, size=10, color='166534')
-            elif result.total_score >= 30:
+            elif result.total_score >= 60:
                 score_cell.fill = _fill('FEF9C3')   # жёлтый
                 score_cell.font = _font(bold=True, size=10, color='854D0E')
             else:
@@ -406,7 +406,7 @@ def _compute_max_scores(subjects_data):
             math_max = g['total']
         elif 'рус' in name_lower or 'russian' in name_lower:
             russian_max = g['total']
-    return english_max, math_max, russian_max, english_max + math_max + russian_max
+    return english_max * 2, math_max * 2, russian_max * 2, (english_max + math_max + russian_max) * 2
 
 
 def _group_answers_by_subject(answers_qs):

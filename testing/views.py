@@ -14,6 +14,7 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods
+from django.views.decorators.cache import never_cache
 from django.db import transaction
 
 from .models import TestVariant, Question, AnswerOption, Abiturient, TestResult, AbiturientAnswer, Subject, SiteSettings
@@ -119,6 +120,7 @@ def register_view(request):
     })
 
 
+@never_cache
 def test_view(request):
     """
     Страница прохождения теста.
@@ -268,7 +270,7 @@ def submit_test_view(request):
                 )
                 is_correct = selected_option.is_correct
                 if is_correct:
-                    subject_scores[subj_id]['score'] += 1
+                    subject_scores[subj_id]['score'] += 2
             except (AnswerOption.DoesNotExist, ValueError, TypeError):
                 # Некорректный ID или вариант не принадлежит этому вопросу
                 pass
@@ -321,8 +323,10 @@ def submit_test_view(request):
     return redirect('complete')
 
 
+@never_cache
 def complete_view(request):
     """Страница подтверждения завершения теста. Результаты НЕ показываются."""
+    request.session.flush()
     return render(request, 'testing/complete.html')
 
 

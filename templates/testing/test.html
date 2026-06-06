@@ -376,7 +376,8 @@ updateCounts();
 // ════════════════════════════════════════
 //  ЛОКАЛЬНОЕ ХРАНИЛИЩЕ (восстановление при обновлении страницы)
 // ════════════════════════════════════════
-const STORAGE_KEY = 'itcollege_test_answers';
+// Ключ уникален для каждого абитуриента — ответы одного не попадут к другому
+const STORAGE_KEY = 'itcollege_test_{{ abiturient.pk }}';
 
 function saveAnswers() {
   const data = {};
@@ -406,6 +407,11 @@ document.querySelectorAll('.option-radio').forEach(radio => {
 document.getElementById('test-form').addEventListener('submit', () => {
   testActive = false;
   localStorage.removeItem(STORAGE_KEY);
+});
+
+// Если браузер восстановил страницу из BFCache — перезагружаем с сервера
+window.addEventListener('pageshow', function(e) {
+  if (e.persisted) { window.location.reload(); }
 });
 
 // Восстанавливаем при загрузке
