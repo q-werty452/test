@@ -422,10 +422,23 @@ def _group_answers_by_subject(answers_qs):
                 'total':   0,
             }
         # Находим правильный вариант для этого вопроса
-        correct_opt = answer.question.options.filter(is_correct=True).first()
+        all_opts = list(answer.question.options.all())
+        correct_opt = next((o for o in all_opts if o.is_correct), None)
+        letters = 'АБВГ'
+
+        def _display(opt):
+            if opt is None:
+                return '—'
+            letter = letters[all_opts.index(opt)] if opt in all_opts else '?'
+            if '<svg' in opt.text:
+                return f'{letter} (график)'
+            return opt.text
+
         groups[subj.id]['answers'].append({
-            'answer':      answer,
-            'correct_opt': correct_opt,
+            'answer':           answer,
+            'correct_opt':      correct_opt,
+            'correct_display':  _display(correct_opt),
+            'selected_display': _display(answer.selected_option) if answer.selected_option else None,
         })
         groups[subj.id]['total'] += 1
         if answer.is_correct:

@@ -161,12 +161,12 @@
             <td>{{ item.answer.question.text|truncatechars:100 }}</td>
             <td>
               {% if item.answer.selected_option %}
-                {{ item.answer.selected_option.text }}
+                {{ item.selected_display|safe }}
               {% else %}
                 <em style="color:var(--gray-2)">Нет ответа</em>
               {% endif %}
             </td>
-            <td>{{ item.correct_opt.text|default:"—" }}</td>
+            <td>{{ item.correct_display|safe }}</td>
             <td style="text-align:center;font-size:18px">
               {% if item.answer.is_correct %}
                 <span style="color:#16a34a;font-weight:900">✓</span>

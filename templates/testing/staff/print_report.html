@@ -312,8 +312,8 @@
       <tr class="{% if item.answer.is_correct %}r-correct{% elif not item.answer.selected_option %}r-skipped{% else %}r-wrong{% endif %}">
         <td style="text-align:center;color:#94a3b8;font-weight:600">{{ forloop.counter }}</td>
         <td>{{ item.answer.question.text|striptags|truncatechars:60 }}</td>
-        <td>{{ item.answer.selected_option.text|striptags|truncatechars:35|default:"—" }}</td>
-        <td>{{ item.correct_opt.text|striptags|truncatechars:35|default:"—" }}</td>
+        <td>{{ item.selected_display|striptags|truncatechars:35|default:"—" }}</td>
+        <td>{{ item.correct_display|striptags|truncatechars:35 }}</td>
         <td style="text-align:center">
           {% if item.answer.is_correct %}<span class="mark-ok">✓</span>
           {% elif not item.answer.selected_option %}<span class="mark-skip">—</span>
